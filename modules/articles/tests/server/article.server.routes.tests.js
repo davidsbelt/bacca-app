@@ -11,7 +11,7 @@ var should = require('should'),
 /**
  * Globals
  */
-var app, agent, credentials, user, article;
+var app, agent, credentials, user, credentials2, user2, article;
 
 /**
  * Article routes tests
@@ -33,6 +33,11 @@ describe('Article CRUD tests', function () {
       password: 'M3@n.jsI$Aw3$0m3'
     };
 
+    credentials2 = {
+      username: 'mentor user',
+      password: 'M3@n.jsI$Aw3$457'
+    };
+
     // Create a new user
     user = new User({
       firstName: 'Full',
@@ -44,8 +49,22 @@ describe('Article CRUD tests', function () {
       provider: 'local'
     });
 
+    // Create a new user
+    user2 = new User({
+      firstName: 'mentor',
+      lastName: 'man',
+      displayName: 'mentor man',
+      roles: ['mentor'],
+      email: 'mentortest@test.com',
+      username: credentials2.username,
+      password: credentials2.password,
+      provider: 'local'
+    });
+
+
     // Save a user to the test db and create new article
     user.save(function () {
+      user2.save();
       article = {
         title: 'Article Title',
         content: 'Article Content'
@@ -55,7 +74,7 @@ describe('Article CRUD tests', function () {
     });
   });
 
-  it('should be able to save an article if logged in', function (done) {
+  it('should not be able to save an article if logged in as regular user', function (done) {
     agent.post('/api/auth/signin')
       .send(credentials)
       .expect(200)
@@ -71,6 +90,47 @@ describe('Article CRUD tests', function () {
         // Save a new article
         agent.post('/api/articles')
           .send(article)
+          .expect(403)
+          .end(function (articleSaveErr, articleSaveRes) {
+            // Handle article save error
+            if (articleSaveErr) {
+              return done(articleSaveErr);
+            }
+
+            //set assertions
+            (articleSaveRes.body.message).should.match('User is not authorized');
+            done();
+
+          });
+      });
+  });
+
+  it('should not be able to save an article if not logged in', function (done) {
+    agent.post('/api/articles')
+      .send(article)
+      .expect(403)
+      .end(function (articleSaveErr, articleSaveRes) {
+        // Call the assertion callback
+        done(articleSaveErr);
+      });
+  });
+
+  it('should be able to save an article if logged in as mentor', function (done) {
+    agent.post('/api/auth/signin')
+      .send(credentials2)
+      .expect(200)
+      .end(function (signinErr, signinRes) {
+        // Handle signin error
+        if (signinErr) {
+          return done(signinErr);
+        }
+
+        // Get the userId
+        var userId = user2.id;
+
+        // Save a new article
+        agent.post('/api/articles')
+          .send(article)
           .expect(200)
           .end(function (articleSaveErr, articleSaveRes) {
             // Handle article save error
@@ -78,7 +138,6 @@ describe('Article CRUD tests', function () {
               return done(articleSaveErr);
             }
 
-            // Get a list of articles
             agent.get('/api/articles')
               .end(function (articlesGetErr, articlesGetRes) {
                 // Handle article save error
@@ -95,18 +154,8 @@ describe('Article CRUD tests', function () {
 
                 // Call the assertion callback
                 done();
-              });
+              });            
           });
-      });
-  });
-
-  it('should not be able to save an article if not logged in', function (done) {
-    agent.post('/api/articles')
-      .send(article)
-      .expect(403)
-      .end(function (articleSaveErr, articleSaveRes) {
-        // Call the assertion callback
-        done(articleSaveErr);
       });
   });
 
@@ -115,7 +164,7 @@ describe('Article CRUD tests', function () {
     article.title = '';
 
     agent.post('/api/auth/signin')
-      .send(credentials)
+      .send(credentials2)
       .expect(200)
       .end(function (signinErr, signinRes) {
         // Handle signin error
@@ -124,7 +173,7 @@ describe('Article CRUD tests', function () {
         }
 
         // Get the userId
-        var userId = user.id;
+        var userId = user2.id;
 
         // Save a new article
         agent.post('/api/articles')
@@ -140,9 +189,9 @@ describe('Article CRUD tests', function () {
       });
   });
 
-  it('should be able to update an article if signed in', function (done) {
+  it('should be able to update an article if signed in as mentor', function (done) {
     agent.post('/api/auth/signin')
-      .send(credentials)
+      .send(credentials2)
       .expect(200)
       .end(function (signinErr, signinRes) {
         // Handle signin error
@@ -151,7 +200,7 @@ describe('Article CRUD tests', function () {
         }
 
         // Get the userId
-        var userId = user.id;
+        var userId = user2.id;
 
         // Save a new article
         agent.post('/api/articles')
@@ -247,9 +296,9 @@ describe('Article CRUD tests', function () {
       });
   });
 
-  it('should be able to delete an article if signed in', function (done) {
+  it('should be able to delete an article if signed in as mentor', function (done) {
     agent.post('/api/auth/signin')
-      .send(credentials)
+      .send(credentials2)
       .expect(200)
       .end(function (signinErr, signinRes) {
         // Handle signin error
@@ -258,7 +307,7 @@ describe('Article CRUD tests', function () {
         }
 
         // Get the userId
-        var userId = user.id;
+        var userId = user2.id;
 
         // Save a new article
         agent.post('/api/articles')

@@ -1,5 +1,22 @@
 [![MEAN.JS Logo](http://meanjs.org/img/logo-small.png)](http://meanjs.org/)
 
+Ok.. Before you begin to read the installation proceedures...
+
+I have modified a substantial amount of the server side code. The original scaffolding supports a regular user with ability to write an article, update an article and delete an article and then a guest that is able to retrieve articles and read them but is unable to modify them in any way. However the current implementation allows 3 tiers of users... 'mentor', 'user' and 'guest'. 'Mentor' is able to create articles, comments and reply to comments and also has complete control over any article he created (update and delete). 'User' has authorization to to read articles but is not authorized to create one. 'User' is however able to create comments and reply to comments on any article and also has complete rights over any comments or reply to comments he created. Finally, 'Guest' is only able to read articles, comments and replies to comments but is not authorized to write/create any or perform any form of modification on them.
+
+I've also modified the user models to accomodate media uploads. I have no implemetation of the server side file upload (not for lack of know how) because i intend for us to upload videos and pictures directly to a cloud based file management service. I intend for us to use CLOUDINARY.COM. They have a sweet client side direct upload that totally by-passes the server (no server side resouse consumed). 
+
+I suggest that you familiarize with the default mean.js scaffold to see the program flow before you test this implementation out. Cause you would need to create a user with mentor priviledges to be able to do even things as simple as saving an article... i'll leave you to deal with that in your own way. 
+
+If you go through my tests you'll see that everything regarding the articles and comments are working just fine. I suggest you look at it properly becasue it'll give you granular information as to how the data is structured.
+
+I have dealth with all the linting errors and all the tests are passing. I however am not able to do the e2e tests.... windows issues... i don't suppose you'll have same issues with a mac.
+
+Also watch out for issues with versions... i did this on node v6.9.2 and the mongodb version is 3.4.2. So... if you run into issues regarding version compactiblities google around for fixes or fall back to the versions state above.  
+
+
+GOOD LUCK!!!
+
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/meanjs/mean?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/meanjs/mean.svg?branch=master)](https://travis-ci.org/meanjs/mean)
 [![Dependencies Status](https://david-dm.org/meanjs/mean.svg)](https://david-dm.org/meanjs/mean)

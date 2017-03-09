@@ -25,10 +25,10 @@ exports.invokeRolesPolicies = function () {
     roles: ['user'],
     allows: [{
       resources: '/api/articles',
-      permissions: ['get', 'post']//remove this in production, user should only have "create" access on comments
+      permissions: ['get']//remove this in production, user should only have "create" access on comments
     }, {
       resources: '/api/articles/:articleId',
-      permissions: ['get']
+      permissions: ['get', 'post']
     },
     {
       resources: '/api/articles/:articleId/:commentId',
@@ -40,7 +40,7 @@ exports.invokeRolesPolicies = function () {
     }]
   },
   
-  /*{
+  {
     roles: ['mentor'],
     allows: [{
       resources: '/api/articles',
@@ -56,10 +56,11 @@ exports.invokeRolesPolicies = function () {
     },
     {
       resources: '/api/articles/:articleId',
-      permissions: ['get']
+      permissions: ['get', 'post']
     }]
   },
-  */ {
+
+  {
     roles: ['guest'],
     allows: [{
       resources: '/api/articles',
@@ -85,11 +86,20 @@ exports.invokeRolesPolicies = function () {
 exports.isAllowed = function (req, res, next) {
   var roles = (req.user) ? req.user.roles : ['guest'];
 
+  //extract 
+
   // If an article is being processed and the current user created it then allow any manipulation
   if (req.article && req.user && req.article.user.id === req.user.id) {
     return next();
   }
-
+  //if the current user created the comment then allow any manipulations
+  if (req.commentGo === true) {
+    return next();
+  }
+  //if the current user created the reply then allow all manipulations
+  if (req.replyGo === true) {
+    return next();
+  }
   // Check for user roles
   acl.areAnyRolesAllowed(roles, req.route.path, req.method.toLowerCase(), function (err, isAllowed) {
     if (err) {

@@ -13,7 +13,7 @@ module.exports = function (app) {
     .post(articles.create);
 
   // Single article routes
-  app.route('/api/articles/:articleId')
+  app.route('/api/articles/:articleId').all(articlesPolicy.isAllowed)
     .get(articles.read)    
     .put(articles.update)
     .delete(articles.delete)
@@ -33,10 +33,8 @@ module.exports = function (app) {
     .put(articles.updateCommentReply)
     .delete(articles.deleteCommentReply);
 
-  // 
-
-  
-
   // Finish by binding the article middleware
   app.param('articleId', articles.articleByID);
+  app.param('commentId', articles.verifyComment);
+  app.param('replyId', articles.verifyReply);
 };

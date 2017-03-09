@@ -99,9 +99,10 @@ exports.addComment = function(req, res){
 exports.deleteComment = function (req, res) {
   var article = req.article;
   for(var i in article.comments){
-    if(article.comments[i]._id === req.params.commentId){
+    if(article.comments[i]._id.toString() === req.params.commentId){
       _.pullAt(article.comments, i);
     }
+    break;
   }
   
 
@@ -119,18 +120,20 @@ exports.deleteComment = function (req, res) {
 /**
  * update a comment
  */
+
 exports.updateComment = function (req, res) {
   var article = req.article;
- 
   for(var i in article.comments){
     var comment = article.comments[i]._id.toString();
-    if ( comment === req.params.commentId ) {
-      article.comments.splice(i, 1, req.body);
-      article.comments[i].created = Date.now();
-      break;
-
+    
+    if (comment === req.params.commentId) {
+      
+      article.comments[i].content = req.body.content;
+      article.comments[i].created = Date.now();      
     }
+    break;
   }
+  
   article.save(function (err) {
     if (err) {
       return res.status(400).send({
@@ -149,17 +152,22 @@ exports.updateComment = function (req, res) {
 exports.addCommentReply = function(req, res){
   var article = req.article;
   for(var i in article.comments){
+    
     var comment = article.comments[i]._id.toString();
+    
     if(comment === req.params.commentId){
+      
       article.comments[i].reply.push(req.body);//should be replaced by req.body in production
       //add reply owner for referencing parent comment
+     
       _.last(article.comments[i].reply).user = req.user;
       _.last(article.comments[i].reply).parent = req.params.commentId;
-      break;
+      
     }
+    break;
+
   }
-  console.log(article.comments);
-  console.log(article.comments[0].reply);
+
   article.save(function (err) {
     if (err) {
       return res.status(400).send({
@@ -180,12 +188,14 @@ exports.addCommentReply = function(req, res){
 exports.deleteCommentReply = function (req, res) {
   var article = req.article;
   for(var i in article.comments){
-    if(article.comments[i]._id === req.params.commentId){
+    if(article.comments[i]._id.toString() === req.params.commentId){
       for(var j in article.comments[i].reply){
-        if(article.comments[i].reply[j]._id === req.params.replyId){
+        if(article.comments[i].reply[j]._id.toString() === req.params.replyId){
           _.pullAt(article.comments[i].reply, j);
-        }
-      }  
+          break;
+        }        
+      }
+      break;  
     }
   }
 
@@ -210,7 +220,7 @@ exports.updateCommentReply = function (req, res) {
     if(article.comments[i]._id.toString() === req.params.commentId){
       for(var j in article.comments[i].reply){
         if(article.comments[i].reply[j]._id.toString() === req.params.replyId){
-          article.comments[i].reply.splice(j, 1, req.body);
+          article.comments[i].reply[j].content = req.body.content;
           //update creation time
           article.comments[i].reply[j].created = Date.now();
           break;
@@ -267,17 +277,59 @@ exports.articleByID = function (req, res, next, id) {
   Article.findById(id).populate('user', 'displayName profileImageURL')
     //this works for only two level nesting
     .populate('comments.user', 'displayName profileImageURL')
-    //for deeper nesting... this works
-    .populate({path: 'comments.reply.user', model: 'User', select: 'displayName profileImageURL'})
+    .populate({ path: 'comments.reply.user', model: 'User', select: 'displayName profileImageURL' })
     .exec(function (err, article) {
-    if (err) {
-      return next(err);
-    } else if (!article) {
-      return res.status(404).send({
-        message: 'No article with that identifier has been found'
-      });
+      if (err) {
+        return next(err);
+      } else if (!article) {
+        return res.status(404).send({
+          message: 'No article with that identifier has been found'
+        });
+      }
+      req.article = article;
+      next();
+    });
+};
+
+//compare user id to comments user id
+exports.verifyComment = function(req, res, next){
+  //console.log(req.article);
+  for(var i in req.article.comments){
+    //console.log(i);
+    //console.log(req.article.comments[i]._id.toString());
+    var commentId = req.params.commentId;
+    if (commentId === req.article.comments[i]._id.toString()) {
+      if (req.user.id === req.article.comments[i].user._id.toString()){
+        req.commentPosition = i;
+        req.commentGo = true;
+        req.comment = req.article.comments[i];
+      }
     }
-    req.article = article;
-    next();
-  });
+    break;    
+  }
+  next();
+};
+
+exports.verifyReply = function(req, res, next){
+  
+  for(var i in req.article.comments){
+    if(req.params.commentId === req.article.comments[i]._id.toString()){
+      for(var j in req.article.comments[i].reply){
+        var replyId = req.params.replyId;
+        if (replyId === req.article.comments[i].reply[j]._id.toString()) {
+          if (req.user.id === req.article.comments[i].reply[j].user._id.toString()){
+            req.replyPosition = j;
+            req.replyGo = true;
+            req.reply = req.article.comments[i].reply[j];                       
+          }
+          break;       
+        }
+        break;       
+      }
+      break; 
+    }
+    
+   
+  }
+  next();
 };
