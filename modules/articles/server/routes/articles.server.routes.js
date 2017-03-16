@@ -12,6 +12,18 @@ module.exports = function (app) {
     .get(articles.list)
     .post(articles.create);
 
+  //get all available tags
+  app.route('/api/articles/tags').all(articlesPolicy.isAllowed)
+    .get(articles.listTags);
+
+  //get articles based on tags
+  app.route('/api/articles/tags/:tag').all(articlesPolicy.isAllowed)
+    .get(articles.listArticlesByTags);
+
+  //search database for articles containing text strings
+  app.route('/api/articles/search/:searchText').all(articlesPolicy.isAllowed)
+    .get(articles.textSearch);
+
   // Single article routes
   app.route('/api/articles/:articleId').all(articlesPolicy.isAllowed)
     .get(articles.read)    

@@ -241,10 +241,53 @@ exports.updateCommentReply = function (req, res) {
   });
 };
 
+/**
+Text search article topics and content
+*/
+
+exports.textSearch = function(req, res){
+  Article.find({ $text: { $search: req.params.searchText } }, { score: { $meta: 'textScore' } }).sort({ score: { $meta: 'textScore' } }).exec(function(err, res){
+    if(err){
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.json(res);
+    }
+  });
+};
+
 
 /**
- * Delete an article
- */
+list of articles by tags
+*/
+exports.listArticlesByTags = function(req, res){
+  Article.find({ 'tags': req.params.tag }).sort('-created').exec(function(err, articles){
+    if(err){
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.json(articles);
+    }
+  });
+};
+
+/**
+get all tags and counts of distinct tags
+*/
+exports.listTags = function (req, res){
+  Article.aggregate(
+  [{ '$unwind': '$tags' }, { '$group': { '_id': '$tags', 'count': { $sum: 1 } } }]).exec(function(err, tags){
+    if(err){
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.json(tags);
+    }
+  });
+};
 
 
 

@@ -20,8 +20,22 @@ exports.invokeRolesPolicies = function () {
     }, {
       resources: '/api/articles/:articleId',
       permissions: '*'
+    },
+    {
+      resources: '/api/articles/tags',
+      permissions: ['get']
+    },
+    {
+      resources: '/api/articles/tags/:tag',
+      permissions: ['get']
+    },
+    {
+      resources: '/api/articles/search/:searchText',
+      permissions: ['get']
     }]
-  }, {
+  },
+
+  {
     roles: ['user'],
     allows: [{
       resources: '/api/articles',
@@ -37,6 +51,18 @@ exports.invokeRolesPolicies = function () {
     {
       resources: '/api/articles/:articleId/:commentId/:replyId',
       permissions: ['get', 'post']
+    },
+    {
+      resources: '/api/articles/tags',
+      permissions: ['get']
+    },
+    {
+      resources: '/api/articles/tags/:tag',
+      permissions: ['get']
+    },
+    {
+      resources: '/api/articles/search/:searchText',
+      permissions: ['get']
     }]
   },
   
@@ -53,6 +79,18 @@ exports.invokeRolesPolicies = function () {
     {
       resources: '/api/articles/:articleId/:commentId/:replyId',
       permissions: ['get', 'post']
+    },
+    {
+      resources: '/api/articles/tags',
+      permissions: ['get']
+    },
+    {
+      resources: '/api/articles/tags/:tag',
+      permissions: ['get']
+    },
+    {
+      resources: '/api/articles/search/:searchText',
+      permissions: ['get']
     },
     {
       resources: '/api/articles/:articleId',
@@ -75,6 +113,18 @@ exports.invokeRolesPolicies = function () {
     },
     {
       resources: '/api/articles/:articleId/:commentId/:replyId',
+      permissions: ['get']
+    },
+    {
+      resources: '/api/articles/tags',
+      permissions: ['get']
+    },
+    {
+      resources: '/api/articles/tags/:tag',
+      permissions: ['get']
+    },
+    {
+      resources: '/api/articles/search/:searchText',
       permissions: ['get']
     }]
   }]);
