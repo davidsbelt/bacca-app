@@ -23,6 +23,7 @@ exports.create = function (req, res) {
   tags.forEach( function (result) {
     article.tags.push(result);
   });
+
   */
   article.save(function (err) {
     if (err) {
@@ -254,13 +255,13 @@ Text search article topics and content
 */
 
 exports.textSearch = function(req, res){
-  Article.find({ $text: { $search: req.params.searchText } }, { score: { $meta: 'textScore' } }).sort({ score: { $meta: 'textScore' } }).exec(function(err, res){
+  Article.find({ $text: { $search: req.params.searchText } }, { score: { $meta: 'textScore' } }).sort({ score: { $meta: 'textScore' } }).exec(function(err, article){
     if(err){
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
       });
     } else {
-      res.json(res);
+      res.json(article);
     }
   });
 };
