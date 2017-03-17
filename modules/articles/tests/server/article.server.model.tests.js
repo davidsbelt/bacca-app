@@ -32,6 +32,7 @@ describe('Article Model Unit Tests:', function () {
       article = new Article({
         title: 'Article Title',
         content: 'Article Content',
+        tags: [{ text: 'church' }],
         user: user
       });
 

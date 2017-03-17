@@ -28,6 +28,12 @@ var MediaSchema = new Schema({
 	}
 });
 
+var tagSchema = new Schema({
+	text: {
+		type: String,
+		required: 'Please provide atleast one tag'
+	}
+});
 /**
  * reply Schema
  */  
@@ -111,10 +117,7 @@ var ArticleSchema = new Schema({
 		type: Number,
 		default: 0
 	},
-	tags: {
-		type: [String],
-		index: true
-	}
+	tags: [tagSchema]
 });
 
 //index for text search

@@ -15,7 +15,15 @@ var path = require('path'),
 exports.create = function (req, res) {
   var article = new Article(req.body);
   article.user = req.user;
+  /*
+  console.log(article.tags);
+  //save tags assuming tags is sent as a string seperated by space
+  var tags = req.body.tags.split(' ');
   
+  tags.forEach( function (result) {
+    article.tags.push(result);
+  });
+  */
   article.save(function (err) {
     if (err) {
       return res.status(400).send({
@@ -262,7 +270,7 @@ exports.textSearch = function(req, res){
 list of articles by tags
 */
 exports.listArticlesByTags = function(req, res){
-  Article.find({ 'tags': req.params.tag }).sort('-created').exec(function(err, articles){
+  Article.find({ 'tags.text': req.params.tag }).sort('-created').exec(function(err, articles){
     if(err){
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -277,8 +285,9 @@ exports.listArticlesByTags = function(req, res){
 get all tags and counts of distinct tags
 */
 exports.listTags = function (req, res){
+  //responds with array of objects containing the tag and number of articles containing the tags
   Article.aggregate(
-  [{ '$unwind': '$tags' }, { '$group': { '_id': '$tags', 'count': { $sum: 1 } } }]).exec(function(err, tags){
+  [{ '$unwind': '$tags' }, { '$group': { '_id': '$tags.text', 'count': { $sum: 1 } } }]).exec(function(err, tags){
     if(err){
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)

@@ -67,7 +67,8 @@ describe('Article CRUD tests', function () {
       user2.save();
       article = {
         title: 'Article Title',
-        content: 'Article Content'
+        content: 'Article Content',
+        tags: [{ text: 'church-politics' }, { text: 'marriage' } ]
       };
 
       done();
@@ -189,6 +190,36 @@ describe('Article CRUD tests', function () {
       });
   });
 
+  it('should not be able to save an article if no tag is provided', function (done) {
+    // Invalidate tag field
+    article.tags = [ { text: '' } ];
+
+    agent.post('/api/auth/signin')
+      .send(credentials2)
+      .expect(200)
+      .end(function (signinErr, signinRes) {
+        // Handle signin error
+        if (signinErr) {
+          return done(signinErr);
+        }
+
+        // Get the userId
+        var userId = user2.id;
+
+        // Save a new article
+        agent.post('/api/articles')
+          .send(article)
+          .expect(400)
+          .end(function (articleSaveErr, articleSaveRes) {
+            // Set message assertion
+            (articleSaveRes.body.message).should.match('Please provide atleast one tag');
+
+            // Handle article save error
+            done(articleSaveErr);
+          });
+      });
+  });
+
   it('should be able to update an article if signed in as mentor', function (done) {
     agent.post('/api/auth/signin')
       .send(credentials2)
@@ -244,6 +275,45 @@ describe('Article CRUD tests', function () {
     articleObj.save(function () {
       // Request articles
       request(app).get('/api/articles')
+        .end(function (req, res) {
+          // Set assertion
+          res.body.should.be.instanceof(Array).and.have.lengthOf(1);
+
+          // Call the assertion callback
+          done();
+        });
+
+    });
+  });
+
+  it('should be able to get a list of tags if not signed in', function (done) {
+    // Create new article model instance
+    var articleObj = new Article(article);
+
+    // Save the article
+    articleObj.save(function () {
+      // Request articles
+      request(app).get('/api/articles/tags')
+        .end(function (req, res) {
+          // Set assertion
+          console.log(res.body);
+          res.body.should.be.instanceof(Array).and.have.lengthOf(2);
+
+          // Call the assertion callback
+          done();
+        });
+
+    });
+  });
+
+  it('should be able to get a list of articles based on tags if not signed in', function (done) {
+    // Create new article model instance
+    var articleObj = new Article(article);
+
+    // Save the article
+    articleObj.save(function () {
+      // Request articles
+      request(app).get('/api/articles/tags/church-politics')
         .end(function (req, res) {
           // Set assertion
           res.body.should.be.instanceof(Array).and.have.lengthOf(1);

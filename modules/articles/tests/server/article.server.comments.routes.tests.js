@@ -76,7 +76,8 @@ describe('Final Comments CRUD tests', function () {
     user1.save(function () {
       article = {
         title: 'Article Title',
-        content: 'Article Content'
+        content: 'Article Content',
+        tags: [{ text: 'church-politics' }]
       };
     });
     user2 = new User({
