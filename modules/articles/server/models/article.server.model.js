@@ -22,7 +22,7 @@ var MediaSchema = new Schema({
     default: ''
   },
   secure_url: {
-		//location of the file
+		//location of the file;
     type: String,
     default: ''
   }
@@ -31,7 +31,7 @@ var MediaSchema = new Schema({
 var tagSchema = new Schema({
   text: {
     type: String,
-    required: 'Please provide atleast one tag'
+    required: 'Please provide at least one tag'
   }
 });
 
@@ -48,6 +48,10 @@ var ReplySchema = new Schema({
     default: '',
     trim: true,
     required: 'content cannot be blank'
+  },
+  blocked: {
+    type: Boolean,
+    default: false,
   },
   parent: {
     type: Schema.ObjectId
@@ -70,8 +74,10 @@ var CommentSchema = new Schema({
   content: {
     type: String,
     default: '',
-    required: 'content cannot be blank',
-    trim: true
+  },
+  blocked: {
+    type: Boolean,
+    default: false,
   },
   user: {
     type: Schema.ObjectId,
@@ -90,17 +96,28 @@ var ArticleSchema = new Schema({
     type: Date,
     default: Date.now
   },
+  headerImageURL: {
+    type: String,
+    default: '',
+    trim: true
+  },
   title: {
     type: String,
     default: '',
     trim: true,
     required: 'Title cannot be blank'
   },
+  intro: {
+    type: String,
+    default: '',
+    trim: true,
+    required: 'Intro cannot be blank'
+  },
   content: {
     type: String,
     default: '',
     trim: true,
-    required: 'content cannot be blank'
+    required: 'Content cannot be blank'
   },
   slug: {
     type: String,

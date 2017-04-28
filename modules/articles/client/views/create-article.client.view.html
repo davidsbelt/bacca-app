@@ -9,13 +9,37 @@
           <label for="title">Title</label>
           <input name="title" type="text" ng-model="title" id="title" class="form-control" placeholder="Title" required>
           <div ng-messages="articleForm.title.$error" role="alert">
-            <p class="help-block error-text" ng-message="required">Article title is required.</p>
+            <p class="help-block error-text" ng-message="required">Your article needs a title, so this is required.</p>
           </div>
         </div>
-        <div class="form-group">
-          <label for="content">Content</label>
-          <textarea name="content" ng-model="content" id="content" class="form-control" cols="30" rows="10" placeholder="Content"></textarea>
+        <div class="form-group" show-errors>
+          <label for="intro">Intro or Summary</label>
+          <textarea name="intro" ng-model="intro" id="intro" class="form-control" cols="30" rows="2" placeholder="Intro or Summary" required></textarea>
+          <div ng-messages="articleForm.intro.$error" role="alert">
+            <p class="help-block error-text" ng-message="required">Give us a hint out about your article - we call it an intro. You need one.</p>
+          </div>
         </div>
+        <div class="form-group" show-errors>
+          <label for="content">Content</label>
+          <textarea name="content" ng-model="content" id="content" class="form-control" cols="30" rows="10" placeholder="Content" required></textarea>
+          <div ng-messages="articleForm.content.$error" role="alert">
+            <p class="help-block error-text" ng-message="required">Your article needs content, so this is required.</p>
+          </div>
+        </div>
+        <div class="form-group" show-errors>
+          <label for="tags">Tags</label>
+          <tags-input id="tags" name="tags" ng-model="tags"></tags-input>
+          <div ng-messages="articleForm.tags.$error" role="alert">
+            <p class="help-block error-text" ng-message="required">You need to add some tags, so this is required.</p>
+          </div>
+        </div>
+        <!--<div class="form-group" show-errors>
+          <label for="tags">Tags</label>
+          <input name="tags" type="text" ng-model="tags" id="tags" class="form-control" placeholder="Tags" required data-role="tagsinput">
+          <div ng-messages="articleForm.tags.$error" role="alert">
+            <p class="help-block error-text" ng-message="required">You need to add some tags, so this is required.</p>
+          </div>
+        </div>-->
         <div class="form-group">
           <input type="submit" class="btn btn-default">
         </div>

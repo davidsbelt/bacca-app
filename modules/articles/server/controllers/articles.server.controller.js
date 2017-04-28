@@ -6,6 +6,7 @@
 var path = require('path'),
   _ = require('lodash'),
   mongoose = require('mongoose'),
+  cloudinary = require('cloudinary'),
   Article = mongoose.model('Article'),
   errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller'));
 
@@ -15,7 +16,9 @@ var path = require('path'),
 exports.create = function (req, res) {
   var article = new Article(req.body);
   article.user = req.user;
+
   /*
+  console.log(req.tags);
   console.log(article.tags);
   //save tags assuming tags is sent as a string seperated by space
   var tags = req.body.tags.split(' ');
@@ -50,7 +53,9 @@ exports.update = function (req, res) {
   var article = req.article;
 
   article.title = req.body.title;
+  article.intro = req.body.intro;
   article.content = req.body.content;
+  article.tags = req.body.tags;
 
   article.save(function (err) {
     if (err) {
@@ -136,13 +141,64 @@ exports.updateComment = function (req, res) {
     var comment = article.comments[i]._id.toString();
     
     if (comment === req.params.commentId) {
-      
       article.comments[i].content = req.body.content;
-      article.comments[i].created = Date.now();      
+      article.comments[i].created = Date.now();
     }
     break;
   }
   
+  article.save(function (err) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.json(article);//it could return only the comments
+    }
+  });
+};
+
+/**
+ * moderate a comment by blocking it
+ */
+
+exports.blockComment = function (req, res) {
+  var article = req.article;
+  for(var i in article.comments){
+    var comment = article.comments[i]._id.toString();
+
+    if (comment === req.params.commentId) {
+      article.comments[i].blocked = true;
+    }
+    break;
+  }
+
+  article.save(function (err) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.json(article);//it could return only the comments
+    }
+  });
+};
+
+/**
+ * moderate a comment by unblocking it
+ */
+
+exports.blockComment = function (req, res) {
+  var article = req.article;
+  for(var i in article.comments){
+    var comment = article.comments[i]._id.toString();
+
+    if (comment === req.params.commentId) {
+      article.comments[i].blocked = false;
+    }
+    break;
+  }
+
   article.save(function (err) {
     if (err) {
       return res.status(400).send({

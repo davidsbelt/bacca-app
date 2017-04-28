@@ -2,6 +2,7 @@
 
 // Protractor configuration
 var config = {
+  directConnect: true,
   specs: ['modules/*/tests/e2e/*.js']
 };
 

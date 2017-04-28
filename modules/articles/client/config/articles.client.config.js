@@ -21,7 +21,7 @@ angular.module('articles').run(['Menus',
     Menus.addSubMenuItem('topbar', 'articles', {
       title: 'Create Articles',
       state: 'articles.create',
-      roles: ['user']
+      roles: ['mentor', 'admin']
     });
   }
 ]);
