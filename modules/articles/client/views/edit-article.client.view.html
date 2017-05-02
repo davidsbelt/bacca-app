@@ -12,9 +12,26 @@
             <p class="help-block error-text" ng-message="required">Article title is required.</p>
           </div>
         </div>
-        <div class="form-group">
+        <div class="form-group" show-errors>
+          <label for="intro">Intro or Summary</label>
+          <textarea name="intro" ng-model="article.intro" id="intro" class="form-control" cols="30" rows="2" placeholder="Intro or Summary" required></textarea>
+          <div ng-messages="articleForm.intro.$error" role="alert">
+            <p class="help-block error-text" ng-message="required">Give us a hint out about your article - we call it an intro. You need one.</p>
+          </div>
+        </div>
+        <div class="form-group" show-errors>
           <label for="content">Content</label>
-          <textarea name="content" ng-model="article.content" id="content" class="form-control" cols="30" rows="10" placeholder="Content"></textarea>
+          <textarea name="content" ng-model="article.content" id="content" class="form-control" cols="30" rows="10" placeholder="Content" required></textarea>
+          <div ng-messages="articleForm.content.$error" role="alert">
+            <p class="help-block error-text" ng-message="required">Your article needs content, so this is required.</p>
+          </div>
+        </div>
+        <div class="form-group" show-errors>
+          <label for="tags">Tags</label>
+          <tags-input id="tags" name="tags" ng-model="article.tags"></tags-input>
+          <div ng-messages="articleForm.tags.$error" role="alert">
+            <p class="help-block error-text" ng-message="required">You need to add some tags, so this is required.</p>
+          </div>
         </div>
         <div class="form-group">
           <input type="submit" value="Update" class="btn btn-default">

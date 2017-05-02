@@ -63,6 +63,16 @@ var UserSchema = new Schema({
     type: String,
     default: ''
   },
+  intro: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  bio: {
+    type: String,
+    trim: true,
+    default: ''
+  },
   salt: {
     type: String
   },

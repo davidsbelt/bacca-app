@@ -4,6 +4,9 @@
   </div>
   <div class="list-group">
     <a ng-repeat="article in articles" ui-sref="articles.view({articleId: article._id})" class="list-group-item">
+      <div ng-repeat="tag in article.tags">
+        <span ng-bind="tag.text"></span>
+      </div>
       <small class="list-group-item-text">
         Posted on
         <span ng-bind="article.created | date:'mediumDate'"></span>

@@ -31,7 +31,6 @@ module.exports = function (app) {
     .delete(articles.delete)
     .post(articles.addComment);
     //add comment here
-  
 
   // comments on single article routes
   app.route('/api/articles/:articleId/:commentId').all(articlesPolicy.isAllowed)

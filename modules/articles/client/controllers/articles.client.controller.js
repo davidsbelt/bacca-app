@@ -15,10 +15,26 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$statePa
         return false;
       }
 
+      /*var newTags = this.tags;
+      // clean new tags up, have them separated by a comma
+      newTags = newTags.trim().toString();
+      newTags = newTags.replace(', ', ',').split(',');
+
+      var tags = [];
+      for (var tag in newTags) {
+        console.log(tag);
+        tags.push({
+          text: newTags[tag]
+        });
+      }
+      console.log(this);*/
+
       // Create new Article object
       var article = new Articles({
         title: this.title,
-        content: this.content
+        intro: this.intro,
+        content: this.content,
+        tags: this.tags
       });
 
       // Redirect after save
@@ -27,7 +43,9 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$statePa
 
         // Clear form fields
         $scope.title = '';
+        $scope.intro = '';
         $scope.content = '';
+        $scope.tags = '';
       }, function (errorResponse) {
         $scope.error = errorResponse.data.message;
       });
@@ -61,12 +79,29 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$statePa
       }
 
       var article = $scope.article;
+      console.log(article);
+
+
+      /*var newTags = this.tags;
+      // clean new tags up, have them separated by a comma
+      newTags = newTags.trim().toString();
+      newTags = newTags.replace(', ', ',').split(',');
+
+      var tags = [];
+      for (var tag in newTags) {
+        console.log(tag);
+        tags.push({
+          text: newTags[tag]
+        });
+      }
+      console.log(newTags);
+
 
       article.$update(function () {
         $location.path('articles/' + article._id);
       }, function (errorResponse) {
         $scope.error = errorResponse.data.message;
-      });
+      });*/
     };
 
     // Find a list of Articles
@@ -79,6 +114,8 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$statePa
       $scope.article = Articles.get({
         articleId: $stateParams.articleId
       });
+
+      console.log($scope.article);
     };
   }
 ]);

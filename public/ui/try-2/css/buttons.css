@@ -1,0 +1,140 @@
+.btn-facebook {
+    color: #ffffff;
+    background-color: #3B5998;
+}
+.btn-facebook:hover,
+.btn-facebook.hover,
+.btn-facebook:focus,
+.btn-facebook:active,
+.btn-facebook.active,
+.open > .dropdown-toggle.btn-facebook {
+    color: #ffffff;
+    background-color: #1E3E81;
+    border-color: #1E3E81;
+}
+.btn-facebook:active,
+.btn-facebook.active,
+.open > .dropdown-toggle.btn-facebook {
+    background: #a1a6a9;
+    border-color: #a1a6a9;
+}
+.btn-facebook.disabled,
+.btn-facebook[disabled],
+fieldset[disabled] .btn-facebook,
+.btn-facebook.disabled:hover,
+.btn-facebook[disabled]:hover,
+fieldset[disabled] .btn-facebook:hover,
+.btn-facebook.disabled.hover,
+.btn-facebook[disabled].hover,
+fieldset[disabled] .btn-facebook.hover,
+.btn-facebook.disabled:focus,
+.btn-facebook[disabled]:focus,
+fieldset[disabled] .btn-facebook:focus,
+.btn-facebook.disabled:active,
+.btn-facebook[disabled]:active,
+fieldset[disabled] .btn-facebook:active,
+.btn-facebook.disabled.active,
+.btn-facebook[disabled].active,
+fieldset[disabled] .btn-facebook.active {
+    background-color: #3B5998;
+    border-color: #3B5998;
+}
+.btn-facebook .badge {
+    color: #3B5998;
+    background-color: #ffffff;
+}
+
+.btn-twitter {
+    color: #ffffff;
+    background-color: #588FC7;
+}
+.btn-twitter:hover,
+.btn-twitter.hover,
+.btn-twitter:focus,
+.btn-twitter:active,
+.btn-twitter.active,
+.open > .dropdown-toggle.btn-twitter {
+    color: #ffffff;
+    background-color: #3C75AF;
+    border-color: #3C75AF;
+}
+.btn-twitter:active,
+.btn-twitter.active,
+.open > .dropdown-toggle.btn-twitter {
+    background: #5580D5;
+    border-color: #5580D5;
+}
+.btn-twitter.disabled,
+.btn-twitter[disabled],
+fieldset[disabled] .btn-twitter,
+.btn-twitter.disabled:hover,
+.btn-twitter[disabled]:hover,
+fieldset[disabled] .btn-twitter:hover,
+.btn-twitter.disabled.hover,
+.btn-twitter[disabled].hover,
+fieldset[disabled] .btn-twitter.hover,
+.btn-twitter.disabled:focus,
+.btn-twitter[disabled]:focus,
+fieldset[disabled] .btn-twitter:focus,
+.btn-twitter.disabled:active,
+.btn-twitter[disabled]:active,
+fieldset[disabled] .btn-twitter:active,
+.btn-twitter.disabled.active,
+.btn-twitter[disabled].active,
+fieldset[disabled] .btn-twitter.active {
+    background-color: #588FC7;
+    border-color: #588FC7;
+}
+.btn-twitter .badge {
+    color: #588FC7;
+    background-color: #ffffff;
+}
+
+.btn-google {
+    color: #ffffff;
+    background-color: red;
+}
+.btn-google:hover,
+.btn-google.hover,
+.btn-google:focus,
+.btn-google:active,
+.btn-google.active,
+.open > .dropdown-toggle.btn-google {
+    color: #ffffff;
+    background-color: #CC3333;
+    border-color: #CC3333;
+}
+.btn-google:active,
+.btn-google.active,
+.open > .dropdown-toggle.btn-google {
+    background: #DF4020;
+    border-color: #DF4020;
+}
+.btn-google.disabled,
+.btn-google[disabled],
+fieldset[disabled] .btn-google,
+.btn-google.disabled:hover,
+.btn-google[disabled]:hover,
+fieldset[disabled] .btn-google:hover,
+.btn-google.disabled.hover,
+.btn-google[disabled].hover,
+fieldset[disabled] .btn-google.hover,
+.btn-google.disabled:focus,
+.btn-google[disabled]:focus,
+fieldset[disabled] .btn-google:focus,
+.btn-google.disabled:active,
+.btn-google[disabled]:active,
+fieldset[disabled] .btn-google:active,
+.btn-google.disabled.active,
+.btn-google[disabled].active,
+fieldset[disabled] .btn-google.active {
+    background-color: red;
+    border-color: red;
+}
+.btn-google .badge {
+    color: red;
+    background-color: #ffffff;
+}
+
+
+
