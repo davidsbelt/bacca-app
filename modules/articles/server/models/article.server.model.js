@@ -28,7 +28,7 @@ var MediaSchema = new Schema({
   }
 });
 
-var tagSchema = new Schema({
+var TagSchema = new Schema({
   text: {
     type: String,
     required: 'Please provide at least one tag'
@@ -83,7 +83,7 @@ var CommentSchema = new Schema({
     type: Schema.ObjectId,
     ref: 'User'
   },
-  reply: [ReplySchema]
+  replies: [ReplySchema]
 });
 
 /**
@@ -133,7 +133,7 @@ var ArticleSchema = new Schema({
     type: Number,
     default: 0
   },
-  tags: [tagSchema]
+  tags: [TagSchema]
 });
 
 //index for text search
@@ -163,3 +163,6 @@ function sluger(text) {
 }
 
 mongoose.model('Article',ArticleSchema);
+mongoose.model('Comment',CommentSchema);
+mongoose.model('Reply',ReplySchema);
+mongoose.model('Tag',TagSchema);

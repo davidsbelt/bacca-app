@@ -67,7 +67,8 @@ describe('Article CRUD tests', function () {
       user2.save();
       article = {
         title: 'Article Title',
-        content: 'Article Content talking about the love of christ shared',
+        intro: 'Article Intro',
+        content: 'Article Content talking about the love of Christ shared',
         tags: [{ text: 'church-politics' }, { text: 'marriage' } ]
       };
 
@@ -190,6 +191,36 @@ describe('Article CRUD tests', function () {
       });
   });
 
+  it('should not be able to save an article if no intro is provided', function (done) {
+    // Invalidate title field
+    article.intro = '';
+
+    agent.post('/api/auth/signin')
+      .send(credentials2)
+      .expect(200)
+      .end(function (signinErr, signinRes) {
+        // Handle signin error
+        if (signinErr) {
+          return done(signinErr);
+        }
+
+        // Get the userId
+        var userId = user2.id;
+
+        // Save a new article
+        agent.post('/api/articles')
+          .send(article)
+          .expect(400)
+          .end(function (articleSaveErr, articleSaveRes) {
+            // Set message assertion
+            (articleSaveRes.body.message).should.match('Intro cannot be blank');
+
+            // Handle article save error
+            done(articleSaveErr);
+          });
+      });
+  });
+
   it('should not be able to save an article if no tag is provided', function (done) {
     // Invalidate tag field
     article.tags = [ { text: '' } ];
@@ -212,7 +243,7 @@ describe('Article CRUD tests', function () {
           .expect(400)
           .end(function (articleSaveErr, articleSaveRes) {
             // Set message assertion
-            (articleSaveRes.body.message).should.match('Please provide atleast one tag');
+            (articleSaveRes.body.message).should.match('Please provide at least one tag');
 
             // Handle article save error
             done(articleSaveErr);

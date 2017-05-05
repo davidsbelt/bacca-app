@@ -3,7 +3,7 @@
     <h1>New Article</h1>
   </div>
   <div class="col-md-12">
-    <form name="articleForm" class="form-horizontal" ng-submit="create(articleForm.$valid)" novalidate>
+    <form method="post" name="articleForm" class="form-horizontal" ng-submit="create(articleForm.$valid)" novalidate>
       <fieldset>
         <div class="form-group" show-errors>
           <label for="title">Title</label>
@@ -33,13 +33,6 @@
             <p class="help-block error-text" ng-message="required">You need to add some tags, so this is required.</p>
           </div>
         </div>
-        <!--<div class="form-group" show-errors>
-          <label for="tags">Tags</label>
-          <input name="tags" type="text" ng-model="tags" id="tags" class="form-control" placeholder="Tags" required data-role="tagsinput">
-          <div ng-messages="articleForm.tags.$error" role="alert">
-            <p class="help-block error-text" ng-message="required">You need to add some tags, so this is required.</p>
-          </div>
-        </div>-->
         <div class="form-group">
           <input type="submit" class="btn btn-default">
         </div>

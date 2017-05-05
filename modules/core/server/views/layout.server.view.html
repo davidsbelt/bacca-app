@@ -31,8 +31,22 @@
   <!-- Fav Icon -->
   <link href="{{favicon}}" rel="shortcut icon" type="image/x-icon">
 
+  <!--Summernote-->
+  <!-- include jquery -->
+  <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+
+  <!-- include libraries BS3 -->
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.1/css/bootstrap.min.css">
+  <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.0.1/js/bootstrap.min.js"></script>
+
+  <!-- include summernote -->
+  <link rel="stylesheet" href="lib/summernote/dist/summernote.css">
+  <script type="text/javascript" src="lib/summernote/dist/summernote.js"></script>
+  <script type="text/javascript" src="lib/summernote/dist/summernote-options.js"></script>
+
   <!-- Application CSS Files -->
   {% for cssFile in cssFiles %}<link rel="stylesheet" href="{{cssFile}}">{% endfor %}
+
 </head>
 
 <body class="ng-cloak">

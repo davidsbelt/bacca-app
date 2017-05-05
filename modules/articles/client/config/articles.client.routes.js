@@ -31,6 +31,14 @@ angular.module('articles').config(['$stateProvider',
         data: {
           roles: ['mentor', 'admin']
         }
+      })
+      .state('articles.comment', {
+        url: '/:articleId/:commentId',
+        templateUrl: 'modules/articles/client/views/view-comment.client.view.html',
+      })
+      .state('articles.reply', {
+        url: '/:articleId/:commentId/:replyId',
+        templateUrl: 'modules/articles/client/views/view-reply.client.view.html',
       });
   }
 ]);

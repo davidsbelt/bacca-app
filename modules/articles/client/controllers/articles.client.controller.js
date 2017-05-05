@@ -1,12 +1,13 @@
 'use strict';
 
 // Articles controller
-angular.module('articles').controller('ArticlesController', ['$scope', '$stateParams', '$location', 'Authentication', 'Articles',
-  function ($scope, $stateParams, $location, Authentication, Articles) {
+angular.module('articles').controller('ArticlesController', ['$scope', '$http', '$stateParams', '$location', 'Authentication', 'Articles', 'Users',
+  function ($scope, $http, $stateParams, $location, Authentication, Articles, Users) {
     $scope.authentication = Authentication;
 
     // Create new Article
     $scope.create = function (isValid) {
+      console.log(Date.now());
       $scope.error = null;
 
       if (!isValid) {
@@ -14,20 +15,6 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$statePa
 
         return false;
       }
-
-      /*var newTags = this.tags;
-      // clean new tags up, have them separated by a comma
-      newTags = newTags.trim().toString();
-      newTags = newTags.replace(', ', ',').split(',');
-
-      var tags = [];
-      for (var tag in newTags) {
-        console.log(tag);
-        tags.push({
-          text: newTags[tag]
-        });
-      }
-      console.log(this);*/
 
       // Create new Article object
       var article = new Articles({
@@ -79,29 +66,13 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$statePa
       }
 
       var article = $scope.article;
-      console.log(article);
 
-
-      /*var newTags = this.tags;
-      // clean new tags up, have them separated by a comma
-      newTags = newTags.trim().toString();
-      newTags = newTags.replace(', ', ',').split(',');
-
-      var tags = [];
-      for (var tag in newTags) {
-        console.log(tag);
-        tags.push({
-          text: newTags[tag]
-        });
-      }
-      console.log(newTags);
-
-
-      article.$update(function () {
-        $location.path('articles/' + article._id);
+      // Redirect after save
+      article.$update(function (response) {
+        $location.path('articles/' + response._id);
       }, function (errorResponse) {
         $scope.error = errorResponse.data.message;
-      });*/
+      });
     };
 
     // Find a list of Articles
@@ -114,8 +85,148 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$statePa
       $scope.article = Articles.get({
         articleId: $stateParams.articleId
       });
+    };
 
-      console.log($scope.article);
+    // Find existing comment
+    $scope.findComment = function () {
+      Articles.get({
+        articleId: $stateParams.articleId
+      }).$promise.then(function (article) {
+        $scope.article = article;
+        console.log($scope.article);
+
+        for (var i in $scope.article.comments) {
+          var comment = $scope.article.comments[i];
+          if (comment._id === $stateParams.commentId) {
+            $scope.comment = comment;
+          }
+        }
+      });
+    };
+
+    // Find existing reply
+    $scope.findReply = function () {
+      Articles.get({
+        articleId: $stateParams.articleId
+      }).$promise.then(function (article) {
+        $scope.article = article;
+        console.log($scope.article);
+
+        for (var i in $scope.article.comments) {
+          var comment = $scope.article.comments[i];
+          if (comment._id === $stateParams.commentId) {
+            $scope.comment = comment;
+
+            for (var j in $scope.comment.replies) {
+              var reply = $scope.comment.replies[j];
+              if (reply._id === $stateParams.replyId) {
+                $scope.reply = reply;
+              }
+            }
+          }
+        }
+      });
+    };
+
+    // Add a comment to a post
+    $scope.addComment = function (isValid) {
+      $scope.error = null;
+
+      if (!isValid) {
+        $scope.$broadcast('show-errors-check-validity', 'articleForm');
+
+        return false;
+      }
+
+      var content = this.content;
+      var comment = {
+        content: content
+      };
+
+      $http.post('/api/articles/' + $scope.article._id, comment).success(function (response) {
+        $scope.article = response;
+        $location.path('/articles/' + $scope.article._id);
+        $scope.content = '';
+      });
+    };
+
+    // Remove a comment from a post
+    $scope.editComment = function (isValid) {
+      $scope.error = null;
+
+      if (!isValid) {
+        $scope.$broadcast('show-errors-check-validity', 'articleForm');
+
+        return false;
+      }
+
+      var comment = this.comment;
+      var commentId = comment._id;
+
+      $http.put('/api/articles/' + $scope.article._id + '/' + commentId, comment).success(function (response) {
+        $scope.article = response;
+        $scope.editableComment = null;
+        $location.path('/articles/' + $scope.article._id);
+      });
+    };
+
+    // Remove a comment from a post
+    $scope.removeComment = function () {
+      var commentId = this.comment._id;
+      $http.delete('/api/articles/' + $scope.article._id + '/' + commentId).success(function (response) {
+        console.log(response);
+        $scope.article = response;
+        $location.path('/articles/' + $scope.article._id);
+      });
+    };
+
+    // Add a comment to a post
+    $scope.addCommentReply = function (isValid) {
+      $scope.error = null;
+
+      if (!isValid) {
+        $scope.$broadcast('show-errors-check-validity', 'articleForm');
+
+        return false;
+      }
+
+      var content = this.content;
+      var commentId = this.comment._id;
+
+      for (var i in $scope.article.comments) {
+        var comment = $scope.article.comments[i];
+        if (comment._id === commentId) {
+          $scope.comment = comment;
+        }
+      }
+
+      var reply = {
+        content: content
+      };
+
+      $http.post('/api/articles/' + $scope.article._id + '/' + $scope.comment._id, reply).success(function (response) {
+        $scope.article = response;
+        $location.path('/articles/' + $scope.article._id);
+        $scope.content = '';
+      });
+    };
+
+    $scope.doReply = function() {
+      $scope.activeComment = this.comment._id;
+      $scope.editableComment = null;
+    };
+
+    $scope.cancelReply = function() {
+      $scope.activeComment = null;
+    };
+
+    $scope.doEdit = function() {
+      $scope.activeComment = null;
+      $scope.editableComment = this.comment._id;
+    };
+
+    $scope.cancelEdit = function() {
+      $scope.editableComment = null;
     };
   }
 ]);

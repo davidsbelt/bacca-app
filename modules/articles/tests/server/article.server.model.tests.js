@@ -31,6 +31,7 @@ describe('Article Model Unit Tests:', function () {
     user.save(function () {
       article = new Article({
         title: 'Article Title',
+        intro: 'Article Intro',
         content: 'Article Content',
         tags: [{ text: 'church' }],
         user: user
@@ -51,6 +52,15 @@ describe('Article Model Unit Tests:', function () {
 
     it('should be able to show an error when trying to save without title', function (done) {
       article.title = '';
+
+      return article.save(function (err) {
+        should.exist(err);
+        done();
+      });
+    });
+
+    it('should be able to show an error when trying to save without intro', function (done) {
+      article.intro = '';
 
       return article.save(function (err) {
         should.exist(err);
