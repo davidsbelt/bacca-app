@@ -1,0 +1,12 @@
+<section ng-controller="ArticlesController" ng-init="findTags()">
+  <div class="page-header">
+    <h1>Article Tags</h1>
+  </div>
+  <div class="list-group">
+    <a ng-repeat="tag in tags" class="list-group-item" ui-sref="articles.tag({tag: tag._id})">
+      <div>
+        <h4><span ng-bind="tag._id"></span><br><small><span ng-bind="tag.count"></span> <span ng-bind="tag.count == 1 ? 'Article' : 'Articles'"></span></small></h4>
+      </div>
+    </a>
+  </div>
+</section>

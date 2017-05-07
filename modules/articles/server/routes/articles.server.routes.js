@@ -30,7 +30,13 @@ module.exports = function (app) {
     .put(articles.update)
     .delete(articles.delete)
     .post(articles.addComment);
-    //add comment here
+  //add comment here
+
+  // likes/unlikes for single articles
+  app.route('/api/articles/:articleId/likes').all(articlesPolicy.isAllowed)
+    .post(articles.like)
+    .delete(articles.unlike);
+  //add comment here
 
   // comments on single article routes
   app.route('/api/articles/:articleId/:commentId').all(articlesPolicy.isAllowed)

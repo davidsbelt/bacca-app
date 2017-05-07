@@ -85,6 +85,72 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$http', 
       $scope.article = Articles.get({
         articleId: $stateParams.articleId
       });
+      $scope.activeComment = $scope.editableComment = $scope.editableCommentReply = null;
+    };
+
+    // List Articles by their tags
+    $scope.findTags = function () {
+      $scope.article = null;
+      $http.get('/api/articles/tags').success(function (response) {
+        $scope.tags = response.tags;
+      });
+    };
+
+    // List Articles with a specific tag
+    $scope.findByTag = function () {
+      var tag = $stateParams.tag;
+      console.log('tag: ', tag);
+      var realTag = '';
+
+      $http.get('/api/articles/tags').success(function (response) {
+        $scope.tags = response.tags;
+        for (var i in $scope.tags) {
+          var possibleTag = $scope.tags[i]._id.toString();
+          console.log(i, $scope.tags[i]._id.toString());
+          //console.log(i, realTag, possibleTag);
+          if (possibleTag.toLowerCase() === tag.toLowerCase()) {
+            realTag = $scope.tags[i]._id.toString();
+            break;
+          }
+        }
+
+        $http.get('/api/articles/tags/' + realTag).success(function (response) {
+          console.log(response);
+          $scope.articles = response;
+          $scope.tag = realTag;
+          console.log('tag: ', realTag);
+        });
+      });
+
+    };
+
+    // like an article
+    $scope.like = function () {
+      console.log('/api/articles/' + $stateParams.articleId + '/likes');
+      $http.post('/api/articles/' + $stateParams.articleId + '/likes', {
+        user: $scope.authentication.user
+      }).success(function (response) {
+        console.log(response);
+        if (response._id !== undefined) {
+          $scope.article = response;
+          $scope.liked = true;
+        } else {
+          $scope.message = response.message;
+        }
+      });
+    };
+
+    // unlike an article
+    $scope.unlike = function () {
+      $http.delete('/api/articles/' + $stateParams.articleId + '/likes').success(function (response) {
+        console.log(response);
+        if (response._id !== undefined) {
+          $scope.article = response;
+          $scope.liked = false;
+        } else {
+          $scope.message = response.message;
+        }
+      });
     };
 
     // Find existing comment
@@ -150,6 +216,56 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$http', 
       });
     };
 
+    // Admin block a comment from a post
+    $scope.adminBlockComment = function () {
+      var comment = this.comment;
+      console.log('preBlock', comment);
+      comment.blocked = true;
+      $http.put('/api/articles/' + $scope.article._id + '/' + comment._id, comment).success(function (response) {
+        console.log(response);
+        $scope.article = response;
+        $location.path('/articles/' + $scope.article._id);
+      });
+    };
+
+    // Admin unblock a comment from a post
+    $scope.adminUnblockComment = function () {
+      var comment = this.comment;
+      console.log('postBlock', comment);
+      comment.blocked = false;
+      $http.put('/api/articles/' + $scope.article._id + '/' + comment._id, comment).success(function (response) {
+        console.log(response);
+        $scope.article = response;
+        $location.path('/articles/' + $scope.article._id);
+      });
+    };
+
+    // User block a comment from a post
+    $scope.userBlockComment = function () {
+
+      console.log(this);
+
+      var comment = this.comment;
+      var commentId = comment._id;
+
+      var data = {
+        userBlockMode: 'block',
+        blocker: {
+          user: $scope.authentication.user
+        }
+      };
+
+      $http.put('/api/articles/' + $scope.article._id + '/' + comment._id, data).success(function (response) {
+        $scope.article = response;
+        $scope.editableComment = null;
+        $location.path('/articles/' + $scope.article._id);
+      });
+    };
+
+    // Remove a comment from a post
+    $scope.userUnblockComment = function () {
+    };
+
     // Remove a comment from a post
     $scope.editComment = function (isValid) {
       $scope.error = null;
@@ -211,22 +327,70 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$http', 
       });
     };
 
-    $scope.doReply = function() {
+    $scope.editCommentReply = function (isValid) {
+      $scope.error = null;
+
+      if (!isValid) {
+        $scope.$broadcast('show-errors-check-validity', 'articleForm');
+
+        return false;
+      }
+
+      console.log(this);
+
+      var replyId = this.reply._id;
+      var commentId = this.$parent.comment._id;
+      var articleId = this.$parent.$parent.article._id;
+
+      var reply = {
+        content: this.reply.content
+      };
+
+      $http.put('/api/articles/' + articleId + '/' + commentId + '/' + replyId, reply).success(function (response) {
+        $scope.article = response;
+        $location.path('/articles/' + $scope.article._id);
+        $scope.content = '';
+      });
+    };
+
+    $scope.removeCommentReply = function () {
+      var replyId = this.reply._id;
+      var commentId = this.$parent.comment._id;
+      var articleId = this.$parent.$parent.article._id;
+
+      console.log('check ids:> ', articleId, commentId, replyId);
+
+      $http.delete('/api/articles/' + articleId + '/' + commentId + '/' + replyId).success(function (response) {
+        $scope.article = response;
+        $location.path('/articles/' + $scope.article._id);
+        $scope.content = '';
+      });
+    };
+
+    $scope.doCommentReply = function() {
       $scope.activeComment = this.comment._id;
       $scope.editableComment = null;
     };
 
-    $scope.cancelReply = function() {
+    $scope.cancelCommentReply = function() {
       $scope.activeComment = null;
     };
 
-    $scope.doEdit = function() {
+    $scope.doCommentEdit = function() {
       $scope.activeComment = null;
       $scope.editableComment = this.comment._id;
     };
 
-    $scope.cancelEdit = function() {
+    $scope.cancelCommentEdit = function() {
       $scope.editableComment = null;
+    };
+
+    $scope.doCommentReplyEdit = function() {
+      $scope.editableCommentReply = this.reply._id;
+    };
+
+    $scope.cancelCommentReplyEdit = function() {
+      $scope.editableCommentReply = null;
     };
   }
 ]);

@@ -63,6 +63,51 @@ var ReplySchema = new Schema({
 });
 
 /**
+ * CommentBlock Schema
+ */
+
+var CommentBlockSchema = new Schema({
+  created: {
+    type: Date,
+    default: Date.now
+  },
+  user: {
+    type: Schema.ObjectId,
+    ref: 'User'
+  },
+});
+
+/**
+ * ArticleLike Schema
+ */
+
+var ArticleLikeSchema = new Schema({
+  created: {
+    type: Date,
+    default: Date.now
+  },
+  user: {
+    type: Schema.ObjectId,
+    ref: 'User'
+  },
+});
+
+/**
+ * CommentLike Schema
+ */
+
+var CommentLikeSchema = new Schema({
+  created: {
+    type: Date,
+    default: Date.now
+  },
+  user: {
+    type: Schema.ObjectId,
+    ref: 'User'
+  },
+});
+
+/**
  * Comment Schema
  */
 
@@ -83,7 +128,9 @@ var CommentSchema = new Schema({
     type: Schema.ObjectId,
     ref: 'User'
   },
-  replies: [ReplySchema]
+  replies: [ReplySchema],
+  blockers: [CommentBlockSchema],
+  likes: [CommentLikeSchema]
 });
 
 /**
@@ -129,15 +176,22 @@ var ArticleSchema = new Schema({
     ref: 'User'
   },
   comments: [CommentSchema],
-  likes: {
-    type: Number,
-    default: 0
-  },
+  likes: [ArticleLikeSchema],
   tags: [TagSchema]
 });
 
 //index for text search
-ArticleSchema.index({ content: 'text',title: 'text' },{ weights: { title: 4,content: 2 } });
+ArticleSchema.index({
+  content: 'text',
+  intro: 'text',
+  title: 'text'
+},{
+  weights: {
+    title: 8,
+    intro: 4,
+    content: 2
+  }
+});
 
 // Generate the slug
 ArticleSchema.pre('save',function (next) {

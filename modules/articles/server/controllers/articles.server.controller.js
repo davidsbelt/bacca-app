@@ -74,13 +74,91 @@ exports.delete = function (req, res) {
   });
 };
 
+/**
+ * Like a article
+ */
+exports.like = function (req, res) {
+  var article = req.article;
+  var liked = false;
+
+  console.log(req.article);
+
+  // to like an article, user must be included in the article's likes set
+  // first find if user already likes article
+
+  // but before that: does the article have any likes?
+  if (article.likes.length > 0) {
+    for (var i in article.likes) {
+      if (article.likes[i].user.toString() !== undefined && article.likes[i].user.toString() === req.user._id.toString()) {
+        liked = true;
+        break;
+      }
+    }
+  }
+
+  if (liked === true) { // if user likes article
+    res.json({ // send a message
+      message: 'You already like this article.'
+    });
+  } else { // if user has not liked (or is not currently liking) article, then:
+    article.likes.push({ // add user's _id to the likes set...
+      user: req.body.user._id.toString()
+    });
+
+    article.save(function (err) { // ...and send the article
+      if (err) {
+        return res.status(400).send({
+          message: errorHandler.getErrorMessage(err)
+        });
+      } else {
+        res.json(article);
+      }
+    });
+  }
+};
+
+/**
+ * Unlike a article
+ */
+exports.unlike = function (req, res) {
+  var article = req.article;
+  var unliked = true; // user currently not liking article
+  var index = -1; // currently undefined index of user in the likes set
+
+  // to unlike an article, user must be removed from article's likes set
+  // first find if user already likes article
+  for (var i in article.likes) {
+    if (article.likes[i].user.toString() === req.user._id.toString()) {
+      unliked = false; // user likes article => unlike can begin
+      index = i;
+      break;
+    }
+  }
+
+  // at this point, user is still not liking article, so:
+  if (unliked === true) { // given as above,
+    res.json({ // send a message
+      message: 'You have already unliked this article.'
+    });
+  } else { // ...otherwise, unlike the article...
+    article.likes.splice(index); // ...by removing it from the likes set...
+    article.save(function (err) { // ...and save the article.
+      if (err) {
+        return res.status(400).send({
+          message: errorHandler.getErrorMessage(err)
+        });
+      } else {
+        res.json(article);
+      }
+    });
+  }
+};
+
 /*
 *Add a comment to a post
 */
 exports.addComment = function(req, res){
   var article = req.article;
-  //console.log('article', req.article);
-  //console.log('body', req.body);
   article.comments.push(req.body);//should be replaced by req.body in prod and proper test
   _.last(article.comments).user = req.user;
 
@@ -104,9 +182,9 @@ exports.deleteComment = function (req, res) {
 
   for(var i in comments){
     var comment = comments[i];
-    var commentIdString = comment._id ? comment._id.toString() : null;
+    var commentIdString = comment._id !== undefined ? comment._id.toString() : null;
     if (commentIdString !== null) {
-      console.log('comment exists!');
+      console.log('comment exists!', commentIdString, req.params.commentId);
       if (commentIdString === req.params.commentId) {
         comments.splice(i);
         break;
@@ -137,10 +215,35 @@ exports.updateComment = function (req, res) {
   for(var i in article.comments){
     var comment = article.comments[i]._id.toString();
 
-    console.log(comment, ' : ', req.params.commentId);
+    /**
+     * here's what ought to happen here:
+     * if req.user is an admin, he can block, and unblock, comments.
+     * any user can block, and unblock, a comment for themselves.
+     * of course, the comment can be changed in content.
+     */
 
     if (comment === req.params.commentId) {
-      article.comments[i].content = req.body.content;
+      // update comment content
+      if (req.body.content !== undefined) {
+        article.comments[i].content = req.body.content;
+      }
+      // for admin: block the content
+      if (req.user.roles.indexOf('admin') !== -1 && req.body.blocked !== undefined) {
+        console.log('toggleBlock', req.body);
+        article.comments[i].blocked = req.body.blocked;
+      }
+      // for all users: [un]block a comment
+      if (req.body.userBlockMode !== undefined) { // ensure the block mode has been set
+        if (req.body.userBlockMode === 'block') {
+          article.comments[i].blockers.push(req.body.blocker);
+        } else if (req.body.userBlockMode === 'unblock') {
+          for(var j in article.comments[i].blockers) {
+            if (article.comments[i].blockers[j]._id.toString() === req.body.blocker._id.toString()) {
+              article.comments[i].blockers.splice(j);
+            }
+          }
+        }
+      }
       article.comments[i].created = Date.now();
       break;
     }
@@ -153,58 +256,6 @@ exports.updateComment = function (req, res) {
       });
     } else {
       res.json(article);//it could return only the comments
-    }
-  });
-};
-
-/**
- * moderate a comment by blocking it
- */
-
-exports.blockComment = function (req, res) {
-  var article = req.article;
-  for(var i in article.comments){
-    var comment = article.comments[i]._id.toString();
-
-    if (comment === req.params.commentId) {
-      article.comments[i].blocked = true;
-      break;
-    }
-  }
-
-  article.save(function (err) {
-    if (err) {
-      return res.status(400).send({
-        message: errorHandler.getErrorMessage(err)
-      });
-    } else {
-      res.json(article); //it could return only the comments
-    }
-  });
-};
-
-/**
- * moderate a comment by unblocking it
- */
-
-exports.unblockComment = function (req, res) {
-  var article = req.article;
-  for(var i in article.comments){
-    var comment = article.comments[i]._id.toString();
-
-    if (comment === req.params.commentId) {
-      article.comments[i].blocked = false;
-      break;
-    }
-  }
-
-  article.save(function (err) {
-    if (err) {
-      return res.status(400).send({
-        message: errorHandler.getErrorMessage(err)
-      });
-    } else {
-      res.json(article); //it could return only the comments
     }
   });
 };
@@ -254,9 +305,11 @@ exports.deleteCommentReply = function (req, res) {
   var article = req.article;
   for(var i in article.comments){
     if(article.comments[i]._id.toString() === req.params.commentId){
-      for(var j in article.comments[i].reply){
-        if(article.comments[i].reply[j]._id.toString() === req.params.replyId){
-          _.pullAt(article.comments[i].reply, j);
+      for(var j in article.comments[i].replies){
+        if(article.comments[i].replies[j]._id.toString() === req.params.replyId){
+          console.log('[i,j]:', i, j);
+          article.comments[i].replies.splice(j);
+          //_.pullAt(article.comments[i].replies, j);
           break;
         }        
       }
@@ -283,11 +336,11 @@ exports.updateCommentReply = function (req, res) {
   var article = req.article;
   for(var i in article.comments){
     if(article.comments[i]._id.toString() === req.params.commentId){
-      for(var j in article.comments[i].reply){
-        if(article.comments[i].reply[j]._id.toString() === req.params.replyId){
-          article.comments[i].reply[j].content = req.body.content;
+      for(var j in article.comments[i].replies){
+        if(article.comments[i].replies[j]._id.toString() === req.params.replyId){
+          article.comments[i].replies[j].content = req.body.content;
           //update creation time
-          article.comments[i].reply[j].created = Date.now();
+          article.comments[i].replies[j].created = Date.now();
           break;
         }        
       }
@@ -317,7 +370,9 @@ exports.textSearch = function(req, res){
         message: errorHandler.getErrorMessage(err)
       });
     } else {
-      res.json(article);
+      res.json({
+        articles: article
+      });
     }
   });
 };
@@ -350,12 +405,12 @@ exports.listTags = function (req, res){
         message: errorHandler.getErrorMessage(err)
       });
     } else {
-      res.json(tags);
+      res.json({
+        tags: _.sortBy(tags, '_id')
+      });
     }
   });
 };
-
-
 
 /**
  * List of Articles

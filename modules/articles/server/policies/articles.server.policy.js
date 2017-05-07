@@ -12,121 +12,120 @@ acl = new acl(new acl.memoryBackend());
  * Invoke Articles Permissions
  */
 exports.invokeRolesPolicies = function () {
-  acl.allow([{
-    roles: ['admin'],
-    allows: [{
-      resources: '/api/articles',
-      permissions: '*'
-    }, {
-      resources: '/api/articles/:articleId',
-      permissions: '*'
-    },
+  acl.allow([
     {
-      resources: '/api/articles/tags',
-      permissions: ['get']
-    },
-    {
-      resources: '/api/articles/tags/:tag',
-      permissions: ['get']
-    },
-    {
-      resources: '/api/articles/search/:searchText',
-      permissions: ['get']
-    }]
+      roles: ['admin'],
+      allows: [{
+        resources: '/api/articles',
+        permissions: '*'
+      }, {
+        resources: '/api/articles/:articleId',
+        permissions: '*'
+      }, {
+        resources: '/api/articles/:articleId/likes',
+        permissions: ['post', 'delete']
+      }, {
+        resources: '/api/articles/tags',
+        permissions: ['get']
+      }, {
+        resources: '/api/articles/tags/:tag',
+        permissions: ['get']
+      }, {
+        resources: '/api/articles/search/:searchText',
+        permissions: ['get']
+      }
+    ]
   },
 
   {
     roles: ['user'],
-    allows: [{
-      resources: '/api/articles',
-      permissions: ['get']//remove this in production, user should only have "create" access on comments
-    }, {
-      resources: '/api/articles/:articleId',
-      permissions: ['get', 'post']
-    },
-    {
-      resources: '/api/articles/:articleId/:commentId',
-      permissions: ['get', 'post']
-    },
-    {
-      resources: '/api/articles/:articleId/:commentId/:replyId',
-      permissions: ['get', 'post']
-    },
-    {
-      resources: '/api/articles/tags',
-      permissions: ['get']
-    },
-    {
-      resources: '/api/articles/tags/:tag',
-      permissions: ['get']
-    },
-    {
-      resources: '/api/articles/search/:searchText',
-      permissions: ['get']
-    }]
+    allows: [
+      {
+        resources: '/api/articles',
+        permissions: ['get']
+        //remove this in production, user should only have "create" access on comments
+      }, {
+        resources: '/api/articles/:articleId',
+        permissions: ['get', 'post']
+      }, {
+        resources: '/api/articles/:articleId/likes',
+        permissions: ['post', 'delete']
+      }, {
+        resources: '/api/articles/:articleId/:commentId',
+        permissions: ['get', 'post', 'put', 'delete']
+      }, {
+        resources: '/api/articles/:articleId/:commentId/:replyId',
+        permissions: ['get', 'post', 'put', 'delete']
+      }, {
+        resources: '/api/articles/tags',
+        permissions: ['get']
+      }, {
+        resources: '/api/articles/tags/:tag',
+        permissions: ['get']
+      }, {
+        resources: '/api/articles/search/:searchText',
+        permissions: ['get']
+      }
+    ]
   },
   
   {
     roles: ['mentor'],
-    allows: [{
-      resources: '/api/articles',
-      permissions: ['get', 'post']
-    }, 
-    {
-      resources: '/api/articles/:articleId/:commentId',
-      permissions: ['get', 'post']
-    },
-    {
-      resources: '/api/articles/:articleId/:commentId/:replyId',
-      permissions: ['get', 'post']
-    },
-    {
-      resources: '/api/articles/tags',
-      permissions: ['get']
-    },
-    {
-      resources: '/api/articles/tags/:tag',
-      permissions: ['get']
-    },
-    {
-      resources: '/api/articles/search/:searchText',
-      permissions: ['get']
-    },
-    {
-      resources: '/api/articles/:articleId',
-      permissions: ['get', 'post']
-    }]
+    allows: [
+      {
+        resources: '/api/articles',
+        permissions: ['get', 'post']
+      }, {
+        resources: '/api/articles/:articleId',
+        permissions: ['get', 'post', 'put']
+      }, {
+        resources: '/api/articles/:articleId/likes',
+        permissions: ['post', 'delete']
+      }, {
+        resources: '/api/articles/:articleId/:commentId',
+        permissions: ['get', 'post', 'put', 'delete']
+      }, {
+        resources: '/api/articles/:articleId/:commentId/:replyId',
+        permissions: ['get', 'post', 'put', 'delete']
+      }, {
+        resources: '/api/articles/tags',
+        permissions: ['get']
+      }, {
+        resources: '/api/articles/tags/:tag',
+        permissions: ['get']
+      }, {
+        resources: '/api/articles/search/:searchText',
+        permissions: ['get']
+      }
+    ]
   },
 
   {
     roles: ['guest'],
-    allows: [{
-      resources: '/api/articles',
-      permissions: ['get']
-    }, {
-      resources: '/api/articles/:articleId',
-      permissions: ['get']
-    },
-    {
-      resources: '/api/articles/:articleId/:commentId',
-      permissions: ['get']
-    },
-    {
-      resources: '/api/articles/:articleId/:commentId/:replyId',
-      permissions: ['get']
-    },
-    {
-      resources: '/api/articles/tags',
-      permissions: ['get']
-    },
-    {
-      resources: '/api/articles/tags/:tag',
-      permissions: ['get']
-    },
-    {
-      resources: '/api/articles/search/:searchText',
-      permissions: ['get']
-    }]
+    allows: [
+      {
+        resources: '/api/articles',
+        permissions: ['get']
+      }, {
+        resources: '/api/articles/:articleId',
+        permissions: ['get']
+      }, {
+        resources: '/api/articles/:articleId/:commentId',
+        permissions: ['get']
+      }, {
+        resources: '/api/articles/:articleId/:commentId/:replyId',
+        permissions: ['get']
+      }, {
+        resources: '/api/articles/tags',
+        permissions: ['get']
+      }, {
+        resources: '/api/articles/tags/:tag',
+        permissions: ['get']
+      }, {
+        resources: '/api/articles/search/:searchText',
+        permissions: ['get']
+      }
+    ]
   }]);
 };
 
