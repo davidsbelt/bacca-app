@@ -7,8 +7,8 @@
       </li>
     </ul>
     <div class="pull-right">
-      <a class="btn btn-default btn-sm" ng-show="liked !== true" ng-click="like()">Like</a>
-      <a class="btn btn-default btn-sm" ng-show="liked === true" ng-click="unlike()"><i class="glyphicon glyphicon-star"></i> Liked</a>
+      <a class="btn btn-default btn-sm" ng-show="article.liked !== true" ng-click="like()">Like</a>
+      <a class="btn btn-default btn-sm" ng-show="article.liked === true" ng-click="unlike()"><i class="glyphicon glyphicon-star"></i> Liked</a>
     </div>
     <h1 ng-bind="article.title"></h1>
   </div>

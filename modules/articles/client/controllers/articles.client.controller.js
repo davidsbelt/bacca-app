@@ -85,6 +85,14 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$http', 
       $scope.article = Articles.get({
         articleId: $stateParams.articleId
       });
+      var article = $scope.article;
+      article.$promise.then(function (article) {
+        article.liked = article.liked || false;
+        $http.get('/api/articles/' + article._id + '/likes/' + $scope.authentication.user._id).success(function (response) {
+          article.liked = response.status;
+        });
+      });
+      $scope.article = article;
       $scope.activeComment = $scope.editableComment = $scope.editableCommentReply = null;
     };
 
@@ -99,7 +107,6 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$http', 
     // List Articles with a specific tag
     $scope.findByTag = function () {
       var tag = $stateParams.tag;
-      console.log('tag: ', tag);
       var realTag = '';
 
       $http.get('/api/articles/tags').success(function (response) {
@@ -130,10 +137,9 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$http', 
       $http.post('/api/articles/' + $stateParams.articleId + '/likes', {
         user: $scope.authentication.user
       }).success(function (response) {
-        console.log(response);
         if (response._id !== undefined) {
           $scope.article = response;
-          $scope.liked = true;
+          $scope.article.liked = true;
         } else {
           $scope.message = response.message;
         }
@@ -143,10 +149,9 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$http', 
     // unlike an article
     $scope.unlike = function () {
       $http.delete('/api/articles/' + $stateParams.articleId + '/likes').success(function (response) {
-        console.log(response);
         if (response._id !== undefined) {
           $scope.article = response;
-          $scope.liked = false;
+          $scope.article.liked = false;
         } else {
           $scope.message = response.message;
         }
@@ -159,7 +164,6 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$http', 
         articleId: $stateParams.articleId
       }).$promise.then(function (article) {
         $scope.article = article;
-        console.log($scope.article);
 
         for (var i in $scope.article.comments) {
           var comment = $scope.article.comments[i];

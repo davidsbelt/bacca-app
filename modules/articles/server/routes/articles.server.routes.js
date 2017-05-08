@@ -36,7 +36,10 @@ module.exports = function (app) {
   app.route('/api/articles/:articleId/likes').all(articlesPolicy.isAllowed)
     .post(articles.like)
     .delete(articles.unlike);
-  //add comment here
+
+  // like state for single articles
+  app.route('/api/articles/:articleId/likes/:userId').all(articlesPolicy.isAllowed)
+    .get(articles.liked);
 
   // comments on single article routes
   app.route('/api/articles/:articleId/:commentId').all(articlesPolicy.isAllowed)

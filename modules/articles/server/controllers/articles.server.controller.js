@@ -89,22 +89,17 @@ exports.like = function (req, res) {
   // but before that: does the article have any likes?
   if (article.likes.length > 0) {
     for (var i in article.likes) {
-      if (article.likes[i].user.toString() !== undefined && article.likes[i].user.toString() === req.user._id.toString()) {
+      if (article.likes[i].user !== undefined && article.likes[i].user.toString() === req.user._id.toString()) {
         liked = true;
         break;
       }
     }
   }
 
-  if (liked === true) { // if user likes article
-    res.json({ // send a message
-      message: 'You already like this article.'
-    });
-  } else { // if user has not liked (or is not currently liking) article, then:
+  if (liked !== true) { // if user has not liked (or is not currently liking) article, then:
     article.likes.push({ // add user's _id to the likes set...
       user: req.body.user._id.toString()
     });
-
     article.save(function (err) { // ...and send the article
       if (err) {
         return res.status(400).send({
@@ -128,7 +123,7 @@ exports.unlike = function (req, res) {
   // to unlike an article, user must be removed from article's likes set
   // first find if user already likes article
   for (var i in article.likes) {
-    if (article.likes[i].user.toString() === req.user._id.toString()) {
+    if (article.likes[i].user !== undefined && article.likes[i].user.toString() === req.user._id.toString()) {
       unliked = false; // user likes article => unlike can begin
       index = i;
       break;
@@ -136,11 +131,7 @@ exports.unlike = function (req, res) {
   }
 
   // at this point, user is still not liking article, so:
-  if (unliked === true) { // given as above,
-    res.json({ // send a message
-      message: 'You have already unliked this article.'
-    });
-  } else { // ...otherwise, unlike the article...
+  if (unliked === false) { // ...otherwise, unlike the article...
     article.likes.splice(index); // ...by removing it from the likes set...
     article.save(function (err) { // ...and save the article.
       if (err) {
@@ -152,6 +143,27 @@ exports.unlike = function (req, res) {
       }
     });
   }
+};
+
+/**
+ * Like status of an article
+ */
+exports.liked = function(req, res) {
+  var article = req.article;
+  var liked = false; // assumption
+  // check for likes
+  if (article.likes.length > 0) {
+    for (var i in article.likes) {
+      console.log(article.likes.user, req.user);
+      if (article.likes[i].user !== undefined && article.likes[i].user.toString() === req.user._id.toString()) {
+        liked = true; // user likes article
+        break;
+      }
+    }
+  }
+  res.json({
+    status: liked
+  });
 };
 
 /*
