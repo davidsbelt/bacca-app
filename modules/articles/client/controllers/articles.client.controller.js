@@ -97,10 +97,37 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$http', 
     };
 
     // List Articles by their tags
+    $scope.findAuthors = function () {
+      $scope.article = null;
+      $scope.authors = null;
+      $http.get('/api/articles/authors').success(function (response) {
+        console.log(response);
+        $scope.authors = response.authors;
+      }).error(function (err) {
+        console.log('error: ', err);
+      });
+    };
+
+    $scope.findByAuthor = function () {
+      $scope.author = null;
+      $scope.article = null;
+      $scope.articles = null;
+      $http.get('/api/articles/authors/' + $stateParams.author).success(function (response) {
+        console.log('success', response);
+        $scope.author = response.author;
+        $scope.articles = response.articles;
+      }).error(function (err) {
+        console.log('error: ', err);
+      });
+    };
+
+    // List Articles by their tags
     $scope.findTags = function () {
       $scope.article = null;
       $http.get('/api/articles/tags').success(function (response) {
         $scope.tags = response.tags;
+      }).error(function (err) {
+        console.log(err);
       });
     };
 

@@ -21,9 +21,17 @@ angular.module('articles').config(['$stateProvider',
           roles: ['mentor', 'admin']
         }
       })
+      .state('articles.authors', {
+        url: '/authors',
+        templateUrl: 'modules/articles/client/views/list-authors.client.view.html'
+      })
+      .state('articles.author', {
+        url: '/authors/:author',
+        templateUrl: 'modules/articles/client/views/articles-author.client.view.html'
+      })
       .state('articles.tags', {
         url: '/tags',
-        templateUrl: 'modules/articles/client/views/articles-all-tags.client.view.html'
+        templateUrl: 'modules/articles/client/views/list-tags.client.view.html'
       })
       .state('articles.tag', {
         url: '/tags/:tag',

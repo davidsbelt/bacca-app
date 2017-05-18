@@ -33,6 +33,7 @@ module.exports = {
   },
   port: process.env.PORT || 3001,
   app: {
+    name: defaultEnvConfig.app.name,
     title: defaultEnvConfig.app.title + ' - Test Environment'
   },
   facebook: {

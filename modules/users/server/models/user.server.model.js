@@ -77,8 +77,26 @@ var UserSchema = new Schema({
     type: String
   },
   profileImageURL: {
+    //images for the users' profiles are saved here as a fall back
     type: String,
     default: 'modules/users/client/img/profile/default.png'
+  },
+  profileCloudImageURL: {
+    //this field is tailored for file hosting on the Cloudinary platform
+    public_id: {
+      type: String,
+      default: ''
+    },
+    url: {
+      //location of the file
+      type: String,
+      default: ''
+    },
+    secure_url: {
+      //location of the file;
+      type: String,
+      default: ''
+    }
   },
   provider: {
     type: String,
@@ -118,7 +136,6 @@ UserSchema.pre('save', function (next) {
     this.salt = crypto.randomBytes(16).toString('base64');
     this.password = this.hashPassword(this.password);
   }
-
   next();
 });
 

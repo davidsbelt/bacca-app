@@ -19,6 +19,12 @@ exports.invokeRolesPolicies = function () {
         resources: '/api/articles',
         permissions: '*'
       }, {
+        resources: '/api/articles/authors',
+        permissions: ['get']
+      }, {
+        resources: '/api/articles/authors/:author',
+        permissions: ['get']
+      }, {
         resources: '/api/articles/:articleId',
         permissions: '*'
       }, {
@@ -36,17 +42,19 @@ exports.invokeRolesPolicies = function () {
       }, {
         resources: '/api/articles/search/:searchText',
         permissions: ['get']
-      }
-    ]
-  },
-
-  {
-    roles: ['user'],
-    allows: [
-      {
+      }]
+    }, {
+      roles: ['user'],
+      allows: [{
         resources: '/api/articles',
         permissions: ['get']
         //remove this in production, user should only have "create" access on comments
+      }, {
+        resources: '/api/articles/authors',
+        permissions: ['get']
+      }, {
+        resources: '/api/articles/authors/:author',
+        permissions: ['get']
       }, {
         resources: '/api/articles/tags',
         permissions: ['get']
@@ -71,16 +79,18 @@ exports.invokeRolesPolicies = function () {
       }, {
         resources: '/api/articles/:articleId/:commentId/:replyId',
         permissions: ['get', 'post', 'put', 'delete']
-      }
-    ]
-  },
-  
-  {
-    roles: ['mentor'],
-    allows: [
-      {
+      }]
+    }, {
+      roles: ['mentor'],
+      allows: [{
         resources: '/api/articles',
         permissions: ['get', 'post']
+      }, {
+        resources: '/api/articles/authors',
+        permissions: ['get']
+      }, {
+        resources: '/api/articles/authors/:author',
+        permissions: ['get']
       }, {
         resources: '/api/articles/tags',
         permissions: ['get']
@@ -105,15 +115,17 @@ exports.invokeRolesPolicies = function () {
       }, {
         resources: '/api/articles/:articleId/:commentId/:replyId',
         permissions: ['get', 'post', 'put', 'delete']
-      }
-    ]
-  },
-
-  {
-    roles: ['guest'],
-    allows: [
-      {
+      }]
+    }, {
+      roles: ['guest'],
+      allows: [{
         resources: '/api/articles',
+        permissions: ['get']
+      }, {
+        resources: '/api/articles/authors',
+        permissions: ['get']
+      }, {
+        resources: '/api/articles/authors/:author',
         permissions: ['get']
       }, {
         resources: '/api/articles/:articleId/likes/:userId',
@@ -136,9 +148,9 @@ exports.invokeRolesPolicies = function () {
       }, {
         resources: '/api/articles/:articleId/:commentId/:replyId',
         permissions: ['get']
-      }
-    ]
-  }]);
+      }]
+    }
+  ]);
 };
 
 /**

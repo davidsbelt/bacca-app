@@ -6,9 +6,19 @@
 var path = require('path'),
   _ = require('lodash'),
   mongoose = require('mongoose'),
+  multer = require('multer'),
   cloudinary = require('cloudinary'),
+  config = require(path.resolve('./config/config')),
   Article = mongoose.model('Article'),
+  User = mongoose.model('User'),
+  Media = mongoose.model('Media'),
   errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller'));
+
+cloudinary.config({
+  cloud_name: 'do3pqi4vn',
+  api_key: '639462783247274',
+  api_secret: 'AnAy5EwyWZibrZkHU3P1G1zxUrw'
+});
 
 /**
  * Create a article
@@ -75,13 +85,67 @@ exports.delete = function (req, res) {
 };
 
 /**
+ * Change an article's header image
+ */
+exports.changeHeaderImage = function (req, res) {
+  var article = req.article;
+  var imageUploadFileFilter = require(path.resolve('./config/lib/multer')).profileUploadFileFilter;
+
+  if (article) {
+    var options = config.uploads.imageUpload;
+    var upload = multer(options).single('newHeaderImage');
+
+    // Filtering to upload only images
+    upload.fileFilter = imageUploadFileFilter;
+    upload(req, res, function(uploadError) {
+      if (uploadError) {
+        return res.status(400).send({
+          message: 'Error occurred while uploading image'
+        });
+      } else if (req.file === undefined) {
+        return res.status(400).send({
+          message: 'Error - target image did not upload'
+        });
+      } else {
+        console.log(req.article);
+        console.log(req.file);
+
+        cloudinary.uploader.upload(req.file.path, function(result) {
+          console.log(result);
+          var headerMedia = new Media({
+            public_id: result.public_id,
+            url: result.url,
+            secure_url: result.secure_url
+          });
+          article.headerMedia = headerMedia;
+
+          article.save(function (err) {
+            if (err) {
+              return res.status(400).send({
+                message: errorHandler.getErrorMessage(err)
+              });
+            } else {
+              res.json(article);
+            }
+          });
+        });
+      }
+    });
+  } else {
+    res.status(400).send({
+      message: 'Article not identified'
+    });
+  }
+};
+
+/**
  * Like a article
  */
 exports.like = function (req, res) {
   var article = req.article;
   var liked = false;
 
-  console.log(req.article);
+  //console.log(req.article);
 
   // to like an article, user must be included in the article's likes set
   // first find if user already likes article
@@ -154,7 +218,7 @@ exports.liked = function(req, res) {
   // check for likes
   if (article.likes.length > 0) {
     for (var i in article.likes) {
-      console.log(article.likes.user, req.user);
+      //console.log(article.likes.user, req.user);
       if (article.likes[i].user !== undefined && article.likes[i].user.toString() === req.user._id.toString()) {
         liked = true; // user likes article
         break;
@@ -171,7 +235,7 @@ exports.liked = function(req, res) {
 */
 exports.addComment = function(req, res){
   var article = req.article;
-  article.comments.push(req.body);//should be replaced by req.body in prod and proper test
+  article.comments.push(req.body);
   _.last(article.comments).user = req.user;
 
   article.save(function (err) {
@@ -196,7 +260,7 @@ exports.deleteComment = function (req, res) {
     var comment = comments[i];
     var commentIdString = comment._id !== undefined ? comment._id.toString() : null;
     if (commentIdString !== null) {
-      console.log('comment exists!', commentIdString, req.params.commentId);
+      //console.log('comment exists!', commentIdString, req.params.commentId);
       if (commentIdString === req.params.commentId) {
         comments.splice(i);
         break;
@@ -231,7 +295,7 @@ exports.updateComment = function (req, res) {
      * here's what ought to happen here:
      * if req.user is an admin, he can block, and unblock, comments.
      * any user can block, and unblock, a comment for themselves.
-     * of course, the comment can be changed in content.
+     * of course, the comment can change content.
      */
 
     if (comment === req.params.commentId) {
@@ -241,7 +305,7 @@ exports.updateComment = function (req, res) {
       }
       // for admin: block the content
       if (req.user.roles.indexOf('admin') !== -1 && req.body.blocked !== undefined) {
-        console.log('toggleBlock', req.body);
+        //console.log('toggleBlock', req.body);
         article.comments[i].blocked = req.body.blocked;
       }
       // for all users: [un]block a comment
@@ -267,7 +331,7 @@ exports.updateComment = function (req, res) {
         message: errorHandler.getErrorMessage(err)
       });
     } else {
-      res.json(article);//it could return only the comments
+      res.json(article);
     }
   });
 };
@@ -286,7 +350,6 @@ exports.addCommentReply = function(req, res){
     if(comment !== req.params.commentId.toString()) {
       continue;
     } else {
-      //should be replaced by req.body in production
       article.comments[i].replies.push(req.body);
 
       //add reply owner for referencing parent comment
@@ -302,8 +365,7 @@ exports.addCommentReply = function(req, res){
         message: errorHandler.getErrorMessage(err)
       });
     } else {
-      res.json(article);//it could return only the replies
-     
+      res.json(article);
     }
   });
 };
@@ -319,7 +381,7 @@ exports.deleteCommentReply = function (req, res) {
     if(article.comments[i]._id.toString() === req.params.commentId){
       for(var j in article.comments[i].replies){
         if(article.comments[i].replies[j]._id.toString() === req.params.replyId){
-          console.log('[i,j]:', i, j);
+          //console.log('[i,j]:', i, j);
           article.comments[i].replies.splice(j);
           //_.pullAt(article.comments[i].replies, j);
           break;
@@ -406,12 +468,22 @@ exports.listArticlesByTags = function(req, res){
 };
 
 /**
-get all tags and counts of distinct tags
-*/
+ get all tags and counts of distinct tags
+ */
 exports.listTags = function (req, res){
   //responds with array of objects containing the tag and number of articles containing the tags
-  Article.aggregate(
-  [{ '$unwind': '$tags' }, { '$group': { '_id': '$tags.text', 'count': { $sum: 1 } } }]).exec(function(err, tags){
+  Article.aggregate([
+    {
+      '$unwind': '$tags'
+    }, {
+      '$group': {
+        '_id': '$tags.text',
+        'count': {
+          $sum: 1
+        }
+      }
+    }
+  ]).exec(function(err, tags) {
     if(err){
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -440,6 +512,78 @@ exports.list = function (req, res) {
 };
 
 /**
+ get all authors and counts of distinct articles
+ */
+exports.authors = function (req, res){
+  //responds with array of objects containing the authors and number of articles by each author
+
+  Article.aggregate([
+    { $group: {
+      _id: '$user',
+      count: {
+        $sum: 1
+      }
+    } },
+  ]).exec(function(err, authors){
+    if(err){
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      Article.populate(authors, { 'path': '_id', 'model': 'User', 'select': 'displayName profileImageURL username' }, function(errors, results) {
+        if (errors) {
+          return res.status(400).send({
+            message: errorHandler.getErrorMessage(errors)
+          });
+        } else {
+          res.json({
+            authors: results
+          });
+        }
+      });
+    }
+  });
+};
+
+/**
+ * Should respond with a JSON set of articles by a particular author.
+ * Should provide:
+ *  - the article name
+ *  - the article author's display name
+ *  - number of comments to the article
+ *  - number of likes for the article
+ *  - if this article is blocked from the admin
+ *
+ * @param req
+ * @param res
+ */
+exports.byAuthor = function (req, res) {
+  var author = req.params.author;
+  Article.find().sort('-created').populate('user', 'displayName profileImageURL username').exec(function (err, articles) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      var results = [];
+      for (var i in articles) {
+        if (articles[i].user.username !== undefined && articles[i].user.username !== author) {
+          continue;
+        } else if (articles[i].user.username === undefined) {
+          continue;
+        } else {
+          results.push(articles[i]);
+        }
+      }
+      res.json({
+        author: results[0].user,
+        articles: results
+      });
+    }
+  });
+};
+
+/**
  * Article middleware
  */
 exports.articleByID = function (req, res, next, id) {
@@ -450,10 +594,10 @@ exports.articleByID = function (req, res, next, id) {
     });
   }
 
-  Article.findById(id).populate('user', 'displayName profileImageURL')
+  Article.findById(id).populate('user', 'displayName profileImageURL username')
     //this works for only two level nesting
-    .populate('comments.user', 'displayName profileImageURL')
-    .populate({ path: 'comments.replies.user', model: 'User', select: 'displayName profileImageURL' })
+    .populate('comments.user', 'displayName profileImageURL username')
+    .populate({ path: 'comments.replies.user', model: 'User', select: 'displayName profileImageURL username' })
     .exec(function (err, article) {
       if (err) {
         return next(err);

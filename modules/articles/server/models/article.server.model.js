@@ -138,15 +138,9 @@ var CommentSchema = new Schema({
  */
 
 var ArticleSchema = new Schema({
-  media: [MediaSchema],
   created: {
     type: Date,
     default: Date.now
-  },
-  headerImageURL: {
-    type: String,
-    default: '',
-    trim: true
   },
   title: {
     type: String,
@@ -175,6 +169,8 @@ var ArticleSchema = new Schema({
     type: Schema.ObjectId,
     ref: 'User'
   },
+  headerMedia: MediaSchema,
+  media: [MediaSchema],
   comments: [CommentSchema],
   likes: [ArticleLikeSchema],
   tags: [TagSchema]
@@ -220,3 +216,4 @@ mongoose.model('Article',ArticleSchema);
 mongoose.model('Comment',CommentSchema);
 mongoose.model('Reply',ReplySchema);
 mongoose.model('Tag',TagSchema);
+mongoose.model('Media',MediaSchema);

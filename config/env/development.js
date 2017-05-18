@@ -33,6 +33,7 @@ module.exports = {
     }
   },
   app: {
+    name: defaultEnvConfig.app.name,
     title: defaultEnvConfig.app.title + ' - Development Environment'
   },
   facebook: {
