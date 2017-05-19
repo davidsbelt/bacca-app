@@ -9,8 +9,15 @@ var _ = require('lodash'),
   errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
   mongoose = require('mongoose'),
   multer = require('multer'),
+  cloudinary = require('cloudinary'),
   config = require(path.resolve('./config/config')),
   User = mongoose.model('User');
+
+cloudinary.config({
+  cloud_name: 'do3pqi4vn',
+  api_key: '639462783247274',
+  api_secret: 'AnAy5EwyWZibrZkHU3P1G1zxUrw'
+});
 
 /**
  * Update user details
@@ -56,20 +63,40 @@ exports.update = function (req, res) {
 exports.changeProfilePicture = function (req, res) {
   var user = req.user;
   var message = null;
-  var upload = multer(config.uploads.profileUpload).single('newProfilePicture');
   var profileUploadFileFilter = require(path.resolve('./config/lib/multer')).profileUploadFileFilter;
-  
-  // Filtering to upload only images
-  upload.fileFilter = profileUploadFileFilter;
+
+  //console.log(cloudinary);
 
   if (user) {
+    var options = config.uploads.profileUpload;
+    options.dest = options.dest + user.username;
+
+    var upload = multer(options).single('newProfilePicture');
+
+    // Filtering to upload only images
+    upload.fileFilter = profileUploadFileFilter;
     upload(req, res, function (uploadError) {
+
+      console.log(req.file);
+
       if(uploadError) {
         return res.status(400).send({
           message: 'Error occurred while uploading profile picture'
         });
+      } else if (req.file === undefined) {
+        return res.status(400).send({
+          message: 'Error - profile picture did not upload'
+        });
       } else {
-        user.profileImageURL = config.uploads.profileUpload.dest + req.file.filename;
+        user.profileImageURL = config.uploads.profileUpload.dest + '/' + req.file.filename;
+
+        cloudinary.uploader.upload(req.file.path, function(result) {
+          user.profileCloudImageURL = {
+            public_id: result.public_id,
+            url: result.url,
+            secure_url: result.secure_url
+          };
+        });
 
         user.save(function (saveError) {
           if (saveError) {

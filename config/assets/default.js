@@ -7,6 +7,7 @@ module.exports = {
         'public/lib/bootstrap/dist/css/bootstrap.css',
         'public/lib/bootstrap/dist/css/bootstrap-theme.css',
         'public/lib/ng-tags-input/ng-tags-input.css',
+        'public/lib/trumbowyg/dist/ui/trumbowyg.min.css'
       ],
       js: [
         'public/lib/angular/angular.js',
@@ -15,10 +16,17 @@ module.exports = {
         'public/lib/angular-messages/angular-messages.js',
         'public/lib/angular-ui-router/release/angular-ui-router.js',
         'public/lib/angular-ui-utils/ui-utils.js',
+        'public/lib/angular-bootstrap/ui-bootstrap.js',
         'public/lib/angular-bootstrap/ui-bootstrap-tpls.js',
         'public/lib/angular-file-upload/angular-file-upload.js',
         'public/lib/owasp-password-strength-test/owasp-password-strength-test.js',
         'public/lib/ng-tags-input/ng-tags-input.js',
+        'public/lib/trumbowyg/dist/trumbowyg.js',
+        'public/lib/trumbowyg-ng/dist/trumbowyg-ng.js',
+        'public/lib/blueimp-file-upload/js/vendor/jquery.ui.widget.js',
+        'public/lib/blueimp-file-upload/js/jquery.iframe-transport.js',
+        'public/lib/blueimp-file-upload/js/jquery.fileupload.js',
+        'public/lib/cloudinary-jquery-file-upload/cloudinary-jquery-file-upload.js'
       ],
       tests: ['public/lib/angular-mocks/angular-mocks.js']
     },

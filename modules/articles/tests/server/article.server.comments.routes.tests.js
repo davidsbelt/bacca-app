@@ -76,6 +76,7 @@ describe('Final Comments CRUD tests', function () {
     user1.save(function () {
       article = {
         title: 'Article Title',
+        intro: 'Article Intro',
         content: 'Article Content',
         tags: [{ text: 'church-politics' }]
       };
@@ -202,6 +203,7 @@ describe('Final Comments CRUD tests', function () {
             if (commentUpdateErr){
               return done(commentUpdateErr);
             }
+            console.log(commentUpdateRes.body.comments);
             //set assertions
             (commentUpdateRes.body.comments[0].content).should.match('this is a comment update');
             done();

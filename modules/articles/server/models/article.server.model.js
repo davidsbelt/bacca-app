@@ -28,7 +28,7 @@ var MediaSchema = new Schema({
   }
 });
 
-var tagSchema = new Schema({
+var TagSchema = new Schema({
   text: {
     type: String,
     required: 'Please provide at least one tag'
@@ -63,6 +63,51 @@ var ReplySchema = new Schema({
 });
 
 /**
+ * CommentBlock Schema
+ */
+
+var CommentBlockSchema = new Schema({
+  created: {
+    type: Date,
+    default: Date.now
+  },
+  user: {
+    type: Schema.ObjectId,
+    ref: 'User'
+  },
+});
+
+/**
+ * ArticleLike Schema
+ */
+
+var ArticleLikeSchema = new Schema({
+  created: {
+    type: Date,
+    default: Date.now
+  },
+  user: {
+    type: Schema.ObjectId,
+    ref: 'User'
+  },
+});
+
+/**
+ * CommentLike Schema
+ */
+
+var CommentLikeSchema = new Schema({
+  created: {
+    type: Date,
+    default: Date.now
+  },
+  user: {
+    type: Schema.ObjectId,
+    ref: 'User'
+  },
+});
+
+/**
  * Comment Schema
  */
 
@@ -83,7 +128,9 @@ var CommentSchema = new Schema({
     type: Schema.ObjectId,
     ref: 'User'
   },
-  reply: [ReplySchema]
+  replies: [ReplySchema],
+  blockers: [CommentBlockSchema],
+  likes: [CommentLikeSchema]
 });
 
 /**
@@ -91,15 +138,9 @@ var CommentSchema = new Schema({
  */
 
 var ArticleSchema = new Schema({
-  media: [MediaSchema],
   created: {
     type: Date,
     default: Date.now
-  },
-  headerImageURL: {
-    type: String,
-    default: '',
-    trim: true
   },
   title: {
     type: String,
@@ -128,16 +169,25 @@ var ArticleSchema = new Schema({
     type: Schema.ObjectId,
     ref: 'User'
   },
+  headerMedia: MediaSchema,
+  media: [MediaSchema],
   comments: [CommentSchema],
-  likes: {
-    type: Number,
-    default: 0
-  },
-  tags: [tagSchema]
+  likes: [ArticleLikeSchema],
+  tags: [TagSchema]
 });
 
 //index for text search
-ArticleSchema.index({ content: 'text',title: 'text' },{ weights: { title: 4,content: 2 } });
+ArticleSchema.index({
+  content: 'text',
+  intro: 'text',
+  title: 'text'
+},{
+  weights: {
+    title: 8,
+    intro: 4,
+    content: 2
+  }
+});
 
 // Generate the slug
 ArticleSchema.pre('save',function (next) {
@@ -163,3 +213,7 @@ function sluger(text) {
 }
 
 mongoose.model('Article',ArticleSchema);
+mongoose.model('Comment',CommentSchema);
+mongoose.model('Reply',ReplySchema);
+mongoose.model('Tag',TagSchema);
+mongoose.model('Media',MediaSchema);

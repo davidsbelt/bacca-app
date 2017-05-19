@@ -21,6 +21,22 @@ angular.module('articles').config(['$stateProvider',
           roles: ['mentor', 'admin']
         }
       })
+      .state('articles.authors', {
+        url: '/authors',
+        templateUrl: 'modules/articles/client/views/list-authors.client.view.html'
+      })
+      .state('articles.author', {
+        url: '/authors/:author',
+        templateUrl: 'modules/articles/client/views/articles-author.client.view.html'
+      })
+      .state('articles.tags', {
+        url: '/tags',
+        templateUrl: 'modules/articles/client/views/list-tags.client.view.html'
+      })
+      .state('articles.tag', {
+        url: '/tags/:tag',
+        templateUrl: 'modules/articles/client/views/articles-tag.client.view.html'
+      })
       .state('articles.view', {
         url: '/:articleId',
         templateUrl: 'modules/articles/client/views/view-article.client.view.html'
@@ -31,6 +47,14 @@ angular.module('articles').config(['$stateProvider',
         data: {
           roles: ['mentor', 'admin']
         }
+      })
+      .state('articles.comment', {
+        url: '/:articleId/:commentId',
+        templateUrl: 'modules/articles/client/views/view-comment.client.view.html'
+      })
+      .state('articles.reply', {
+        url: '/:articleId/:commentId/:replyId',
+        templateUrl: 'modules/articles/client/views/view-reply.client.view.html'
       });
   }
 ]);

@@ -1,0 +1,37 @@
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
+.article-header-image {
+    min-width: 100%;
+    max-width: 100%;
+    height: auto;
+}
+.trumbowyg-box, .trumbowyg-editor {
+    display: block;
+    width: auto;
+}
+.tab-content {
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    padding: 1rem 3rem 2rem;
+    display: -webkit-flex;
+    display: flex;
+    clear: both;
+    float: none;
+}
