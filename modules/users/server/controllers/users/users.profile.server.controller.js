@@ -65,8 +65,6 @@ exports.changeProfilePicture = function (req, res) {
   var message = null;
   var profileUploadFileFilter = require(path.resolve('./config/lib/multer')).profileUploadFileFilter;
 
-  //console.log(cloudinary);
-
   if (user) {
     var options = config.uploads.profileUpload;
     options.dest = options.dest + user.username;
@@ -96,6 +94,8 @@ exports.changeProfilePicture = function (req, res) {
             url: result.url,
             secure_url: result.secure_url
           };
+        }, {
+          folder: 'users/' + user.username
         });
 
         user.save(function (saveError) {

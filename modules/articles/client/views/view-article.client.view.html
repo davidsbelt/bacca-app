@@ -33,7 +33,8 @@
       </em>
     </p>
   </div>
-  <img ng-src="{{article.headerMedia.url}}" />
+  <img ng-show="article.headerMedia.url" ng-src="{{article.headerMedia.url}}" />
+  <img ng-show="!article.headerMedia.url" ng-src="{{article.headerMedia.local_src}}" />
   <div class="lead" ng-bind-html="article.intro"></div>
   <div ng-bind-html="article.content"></div>
   <div class="commentary">
