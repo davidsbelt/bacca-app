@@ -96,6 +96,11 @@ var UserSchema = new Schema({
       //location of the file;
       type: String,
       default: ''
+    },
+    local_src: {
+      //images for the users' profiles are saved here as a fall back
+      type: String,
+      default: 'modules/users/client/img/profile/default.png'
     }
   },
   provider: {

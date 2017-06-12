@@ -39,6 +39,8 @@ angular.module('users').controller('ChangeProfilePictureController', ['$scope', 
       // Show success message
       $scope.success = true;
 
+      console.log('response', response);
+
       // Populate user object
       $scope.user = Authentication.user = response;
 

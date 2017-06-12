@@ -42,6 +42,7 @@ module.exports = function (app) {
 
   // Change article header image
   app.route('/api/articles/:articleId/headerimage').all(articlesPolicy.isAllowed)
+    .get(articles.getHeaderImage)
     .post(articles.changeHeaderImage);
   //add comment here
 
@@ -50,9 +51,11 @@ module.exports = function (app) {
     .post(articles.like)
     .delete(articles.unlike);
 
-  // like state for single articles
-  app.route('/api/articles/:articleId/likes/:userId').all(articlesPolicy.isAllowed)
-    .get(articles.liked);
+  // save media for single articles
+  app.route('/api/articles/:articleId/media').all(articlesPolicy.isAllowed)
+    // .get(articles.getMedia);
+    .post(articles.saveMedia);
+    // .delete(articles.deleteMedia);
 
   // comments on single article routes
   app.route('/api/articles/:articleId/:commentId').all(articlesPolicy.isAllowed)

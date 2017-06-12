@@ -12,3 +12,15 @@ angular.module('articles').factory('Articles', ['$resource',
     });
   }
 ]);
+
+angular.module('articles').factory('HeaderMedia', ['$resource',
+  function ($resource) {
+    return $resource('api/articles/:articleId/headermedia', {
+      articleId: '@_id'
+    }/*, {
+      update: {
+        method: 'PUT'
+      }
+    }*/);
+  }
+]);

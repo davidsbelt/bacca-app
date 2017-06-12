@@ -22,6 +22,7 @@ module.exports = {
         'public/lib/owasp-password-strength-test/owasp-password-strength-test.js',
         'public/lib/ng-tags-input/ng-tags-input.js',
         'public/lib/trumbowyg/dist/trumbowyg.js',
+        'public/lib/trumbowyg/dist/plugins/base64/trumbowyg.base64.js',
         'public/lib/trumbowyg-ng/dist/trumbowyg-ng.js',
         'public/lib/blueimp-file-upload/js/vendor/jquery.ui.widget.js',
         'public/lib/blueimp-file-upload/js/jquery.iframe-transport.js',

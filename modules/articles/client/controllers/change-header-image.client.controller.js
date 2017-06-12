@@ -1,16 +1,20 @@
 'use strict';
 
-angular.module('articles').controller('ChangeHeaderImageController', ['$scope', '$timeout', '$stateParams', '$window', 'Authentication', 'FileUploader', 'Articles',
-  function ($scope, $timeout, $stateParams, $window, Authentication, FileUploader, Articles) {
+angular.module('articles').controller('ChangeHeaderImageController', ['$scope', '$timeout', '$stateParams', '$window', '$location', 'Authentication', 'FileUploader', 'Articles',
+  function ($scope, $timeout, $stateParams, $window, $location, Authentication, FileUploader, Articles) {
     $scope.user = Authentication.user;
-    $scope.article =  Articles.get({
+    $scope.article = Articles.get({
       articleId: $stateParams.articleId
     });
-    $scope.imageURL = $scope.article.headerMedia || null;
+
+    $scope.init = function() {
+      $scope.success = $scope.error = null;
+      $scope.headerImage = $scope.article.headerMedia ? $scope.article.headerMedia.local_src : null;
+    };
 
     // Create file uploader instance
     $scope.uploader = new FileUploader({
-      url: 'api/articles/' + $stateParams.articleId + '/headerimage',
+      url: '/api/articles/' + $stateParams.articleId + '/headerimage',
       alias: 'newHeaderImage'
     });
 
@@ -31,7 +35,7 @@ angular.module('articles').controller('ChangeHeaderImageController', ['$scope', 
 
         fileReader.onload = function (fileReaderEvent) {
           $timeout(function () {
-            $scope.imageURL = fileReaderEvent.target.result;
+            $scope.headerImage = fileReaderEvent.target.result;
           }, 0);
         };
       }
@@ -42,17 +46,23 @@ angular.module('articles').controller('ChangeHeaderImageController', ['$scope', 
       // Show success message
       $scope.success = true;
 
+      console.log('response', response);
+
       // Populate user object
-      $scope.user = Authentication.user = response;
+      $scope.user = Authentication.user = response.user;
 
       // Clear upload buttons
       $scope.cancelUpload();
+
+      $location.path('articles/' + response._id);
     };
 
     // Called after the user has failed to upload a new picture
     $scope.uploader.onErrorItem = function (fileItem, response, status, headers) {
       // Clear upload buttons
       $scope.cancelUpload();
+
+      console.log(fileItem, response, status, headers);
 
       // Show error message
       $scope.error = response.message;
@@ -72,7 +82,13 @@ angular.module('articles').controller('ChangeHeaderImageController', ['$scope', 
     // Cancel the upload process
     $scope.cancelUpload = function () {
       $scope.uploader.clearQueue();
-      //$scope.imageURL = $scope.article.profileImageURL;
+      if ($scope.article.headerMedia) {
+        if ($scope.article.headerMedia.url !== undefined) {
+          $scope.article.headerMedia = $scope.article.headerMedia.url;
+        } else {
+          $scope.article.headerMedia = $scope.article.headerMedia.local_src;
+        }
+      }
     };
   }
 ]);

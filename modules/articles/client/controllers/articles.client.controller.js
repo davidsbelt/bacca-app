@@ -1,13 +1,12 @@
 'use strict';
 
 // Articles controller
-angular.module('articles').controller('ArticlesController', ['$scope', '$http', '$stateParams', '$location', 'Authentication', 'Articles', 'Users',
-  function ($scope, $http, $stateParams, $location, Authentication, Articles, Users) {
+angular.module('articles').controller('ArticlesController', ['$scope', '$http', '$stateParams', '$location', '$window', '$timeout', 'Authentication', 'FileUploader', 'Articles',
+  function ($scope, $http, $stateParams, $location, $window, $timeout, Authentication, FileUploader, Articles) {
     $scope.authentication = Authentication;
 
     // Create new Article
-    $scope.create = function (isValid) {
-      console.log(Date.now());
+    /*$scope.create = function (isValid) {
       $scope.error = null;
 
       if (!isValid) {
@@ -16,26 +15,114 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$http', 
         return false;
       }
 
-      // Create new Article object
+      var fileInput = document.querySelector('[name=headerMedia]:not([multiple])');
+      var newImage = fileInput.files[0];
+      var title = this.title;
+      var content = this.content;
+      var tags = this.tags;
+      var headerMedia = {
+        public_id: "",
+        url: "",
+        secure_url: "",
+        local_src: ""
+      };
+
+      // Save the header image
+      var fileReader = new FileReader();
+      fileReader.onload = function () {
+        var fileDataURL = fileReader.result;
+
+        console.log('tt', title);
+        console.log('ni', newImage);
+        console.log('fr', fileReader);
+        console.log('fd', fileDataURL);
+
+        var sluggify = function(text) {
+          return text.toString().toLowerCase()
+            .replace(/\s+/g,'-')        // Replace spaces with -
+            .replace(/[^\w\-]+/g,'')   // Remove all non-word chars
+            .replace(/\-\-+/g,'-')      // Replace multiple - with single -
+            .replace(/^-+/,'')          // Trim - from start of text
+            .replace(/-+$/,'');         // Trim - from end of text
+        };
+
+        var data = {
+          file: fileDataURL,
+          upload_preset: 'p0m7aaii',
+          folder: 'articles/' + sluggify(title)
+        };
+        console.log('data', data);
+
+        $http.post('https://api.cloudinary.com/v1_1/do3pqi4vn/image/upload', data).success(function (response) {
+          headerMedia.public_id = response.public_id;
+          headerMedia.url = response.url;
+          headerMedia.secure_url = response.secure_url;
+        }).error(function (error) {
+          console.log('error: ', error);
+        });
+
+        headerMedia.local_src = fileDataURL;
+        console.log('hm', headerMedia);
+
+        // Create new Article object
+        var article = new Articles({
+          title: title,
+          content: content,
+          tags: tags,
+          headerMedia: headerMedia
+        });
+
+        console.log('ac', article);
+
+        // Redirect after save
+        article.$save(function (response) {
+          console.log('ar', response);
+
+          // Clear form fields
+          $scope.title = '';
+          $scope.content = '';
+          $scope.tags = '';
+
+          // Get to the created article
+          $location.path('articles/' + response._id);
+        }, function (errorResponse) {
+          $scope.error = errorResponse.data.message;
+        });
+      };
+      fileReader.readAsDataURL(newImage);
+    };*/
+
+    // Create an article
+    $scope.create = function (isValid) {
+      $scope.error = null;
+
+      if (!isValid) {
+        $scope.$broadcast('show-errors-check-validity', 'articleForm');
+
+        return false;
+      }
+
+      console.log(this.headerImage);
+
       var article = new Articles({
         title: this.title,
-        intro: this.intro,
         content: this.content,
         tags: this.tags
       });
 
       // Redirect after save
       article.$save(function (response) {
-        $location.path('articles/' + response._id);
-
         // Clear form fields
         $scope.title = '';
-        $scope.intro = '';
         $scope.content = '';
         $scope.tags = '';
+
+        // Get to the created article
+        $location.path('articles/' + response._id + '/header-image');
       }, function (errorResponse) {
         $scope.error = errorResponse.data.message;
       });
+
     };
 
     // Remove existing Article
@@ -86,14 +173,26 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$http', 
         articleId: $stateParams.articleId
       });
       var article = $scope.article;
-      article.$promise.then(function (article) {
-        article.liked = article.liked || false;
-        $http.get('/api/articles/' + article._id + '/likes/' + $scope.authentication.user._id).success(function (response) {
-          article.liked = response.status;
+      var user = $scope.authentication.user;
+
+      if (article) {
+        article.$promise.then(function (article) {
+          article.liked = article.liked || false;
+          console.log('loaded article likes', article.likes);
+          if (article.likes.length > 0) {
+            for (var i in article.likes) {
+              if (article.likes[i].user !== undefined && article.likes[i].user.toString() === user._id.toString()) {
+                article.liked = true;
+                break;
+              }
+            }
+          }
         });
-      });
-      $scope.article = article;
-      $scope.activeComment = $scope.editableComment = $scope.editableCommentReply = null;
+        $scope.article = article;
+        $scope.activeComment = $scope.editableComment = $scope.editableCommentReply = null;
+      } else {
+        $location.path('not-found');
+      }
     };
 
     // List Articles by their tags
@@ -160,15 +259,35 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$http', 
 
     // like an article
     $scope.like = function () {
-      console.log('/api/articles/' + $stateParams.articleId + '/likes');
-      $http.post('/api/articles/' + $stateParams.articleId + '/likes', {
-        user: $scope.authentication.user
-      }).success(function (response) {
-        if (response._id !== undefined) {
-          $scope.article = response;
-          $scope.article.liked = true;
-        } else {
-          $scope.message = response.message;
+      Articles.get({
+        articleId: $stateParams.articleId
+      }).$promise.then(function (article) {
+        var user = $scope.authentication.user;
+        var liked = false;
+        if (article.likes.length > 0) {
+          for (var i in article.likes) {
+            if (article.likes[i].user !== undefined && article.likes[i].user.toString() === user._id.toString()) {
+              liked = true;
+              break;
+            }
+          }
+        }
+
+        if (liked !== true) { // if user has not liked (or is not currently liking) article, then:
+          article.likes.push({ // add user's _id to the likes set...
+            user: user._id.toString()
+          });
+
+          $http.post('/api/articles/' + article._id + '/likes', {
+            user: user
+          }).success(function (response) {
+            if (response._id !== undefined) {
+              $scope.article = response;
+              $scope.article.liked = true;
+            } else {
+              $scope.message = response.message;
+            }
+          });
         }
       });
     };
@@ -179,6 +298,19 @@ angular.module('articles').controller('ArticlesController', ['$scope', '$http', 
         if (response._id !== undefined) {
           $scope.article = response;
           $scope.article.liked = false;
+        } else {
+          $scope.message = response.message;
+        }
+      });
+    };
+
+    // search for articles
+    $scope.textSearch = function () {
+      $http.get('/api/articles/search/' + $stateParams.searchText).success(function (response) {
+        $scope.searchText = $stateParams.searchText;
+        if (response !== undefined) {
+          console.log(response);
+          $scope.articles = response.articles;
         } else {
           $scope.message = response.message;
         }

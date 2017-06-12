@@ -1,6 +1,6 @@
 <section ng-controller="ArticlesController">
   <div class="page-header">
-    <h1>New Article</h1>
+    <h1>Post a New Article</h1>
   </div>
   <div class="col-md-12">
     <form method="post" name="articleForm" class="form-horizontal" ng-submit="create(articleForm.$valid)" novalidate>
@@ -12,13 +12,25 @@
             <p class="help-block error-text" ng-message="required">Your article needs a title, so this is required.</p>
           </div>
         </div>
-        <div class="form-group" show-errors>
-          <label for="intro">Intro or Summary</label>
-          <textarea trumbowyg-ng name="intro" ng-model="intro" id="intro" class="form-control" cols="30" rows="2" placeholder="Intro or Summary" required></textarea>
-          <div ng-messages="articleForm.intro.$error" role="alert">
-            <p class="help-block error-text" ng-message="required">Give us a hint out about your article - we call it an intro. You need one.</p>
-          </div>
+        <!-- Header image upload: BEGIN -->
+        <!--<div class="form-group">
+          <label for="title">Header Image</label>
+          <span class="form-group text-center" ng-show="headerImage">
+            <img ng-src="{{headerImage}}" class="img-thumbnail article-header-image">
+          </span>
+          <span class="form-group text-center" ng-hide="headerImage">
+            &lt;!&ndash;   nv-file-select uploader="uploader"  &ndash;&gt;
+            &lt;!&ndash;<span class="btn btn-default btn-file">Select Image <input name="headerMedia" type="file" accept="image/*"></span>&ndash;&gt;
+            <span class="btn btn-default btn-file">Select Image <input type="file" nv-file-select uploader="{{uploader}}"></span>
+          </span>
         </div>
+        <div ng-show="success !== undefined" class="text-center text-success">
+          <strong>Header Image Changed Successfully</strong>
+        </div>
+        <div ng-show="error !== undefined" class="text-center text-danger">
+          <strong ng-bind="error"></strong>
+        </div>-->
+        <!-- END: Header image upload -->
         <div class="form-group" show-errors>
           <label for="content">Content</label>
           <textarea trumbowyg-ng name="content" ng-model="content" id="content" class="form-control" cols="30" rows="10" placeholder="Content" required></textarea>

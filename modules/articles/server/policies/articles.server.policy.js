@@ -48,7 +48,6 @@ exports.invokeRolesPolicies = function () {
       allows: [{
         resources: '/api/articles',
         permissions: ['get']
-        //remove this in production, user should only have "create" access on comments
       }, {
         resources: '/api/articles/authors',
         permissions: ['get']

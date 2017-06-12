@@ -15,13 +15,6 @@
               </div>
             </div>
             <div class="form-group" show-errors>
-              <label for="intro">Intro or Summary</label>
-              <textarea trumbowyg-ng name="intro" ng-model="article.intro" id="intro" class="form-control" cols="30" rows="2" placeholder="Intro or Summary" required></textarea>
-              <div ng-messages="articleForm.intro.$error" role="alert">
-                <p class="help-block error-text" ng-message="required">Give us a hint out about your article - we call it an intro. You need one.</p>
-              </div>
-            </div>
-            <div class="form-group" show-errors>
               <label>Content</label>
               <textarea name="content" ng-model="article.content" trumbowyg-ng class="form-control" cols="30" rows="10" placeholder="Content" required></textarea>
               <div ng-messages="articleForm.content.$error" role="alert">
@@ -54,7 +47,7 @@
                 <img ng-src="{{imageURL}}" class="img-thumbnail article-header-image">
               </div>
               <div class="text-center form-group" ng-hide="uploader.queue.length">
-                <span class="btn btn-default btn-file">Select Image <input type="file" nv-file-select uploader="uploader"></span>
+                <span class="btn btn-default btn-file">Select Image <input type="file" nv-file-select uploader="{{uploader}}"></span>
               </div>
               <div class="text-center form-group" ng-show="uploader.queue.length">
                 <button class="btn btn-primary" ng-click="uploadHeaderImage();">Upload</button>

@@ -1,9 +1,12 @@
-<section ng-controller="ArticlesController" ng-init="findByTag()">
-  <div class="page-header">
-    <h1>Articles tagged with <em ng-bind="tag"></em></h1>
-  </div>
+<section ng-controller="HomeController" ng-init="latest()">
   <div class="list-group">
     <a ng-repeat="article in articles" ui-sref="articles.view({articleId: article._id})" class="list-group-item">
+      <p>
+        <span><i class="glyphicon glyphicon-tags"></i></span>
+        <span ng-repeat="tag in article.tags">
+          <span>&nbsp;</span><span ng-bind="tag.text"></span>
+        </span>
+      </p>
       <small class="list-group-item-text">
         Posted on
         <span ng-bind="article.created | date:'mediumDate'"></span>
@@ -13,8 +16,5 @@
       <h4 class="list-group-item-heading" ng-bind="article.title"></h4>
       <p class="list-group-item-text" ng-bind="article.intro"></p>
     </a>
-  </div>
-  <div class="alert alert-warning text-center" ng-if="articles.$resolved && !articles.length">
-    No articles yet, why don't you <a ui-sref="articles.create">create one</a>?
   </div>
 </section>

@@ -12,6 +12,7 @@ var path = require('path'),
   Article = mongoose.model('Article'),
   User = mongoose.model('User'),
   Media = mongoose.model('Media'),
+  fs = require('fs'),
   errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller'));
 
 cloudinary.config({
@@ -24,6 +25,7 @@ cloudinary.config({
  * Create a article
  */
 exports.create = function (req, res) {
+  console.log(req.files);
   var article = new Article(req.body);
   article.user = req.user;
 
@@ -51,10 +53,12 @@ exports.read = function (req, res) {
 exports.update = function (req, res) {
   var article = req.article;
 
-  article.title = req.body.title;
-  article.intro = req.body.intro;
-  article.content = req.body.content;
-  article.tags = req.body.tags;
+  if (req.body.title) article.title = req.body.title;
+  if (req.body.content) article.content = req.body.content;
+  if (req.body.tags) article.tags = req.body.tags;
+  if (req.body.headerImage) article.headerImage = req.body.headerImage;
+  if (req.body.likes) article.likes = req.body.likes;
+  if (req.body.comments) article.comments = req.body.comments;
 
   article.save(function (err) {
     if (err) {
@@ -85,19 +89,39 @@ exports.delete = function (req, res) {
 };
 
 /**
+ * Get an article's header image
+ */
+exports.getHeaderImage = function (req, res) {
+  var article = req.article;
+  if (article) {
+    res.json(article.headerMedia);
+  } else {
+    res.status(400).send({
+      message: 'Article not identified'
+    });
+  }
+};
+
+/**
  * Change an article's header image
  */
 exports.changeHeaderImage = function (req, res) {
   var article = req.article;
-  var imageUploadFileFilter = require(path.resolve('./config/lib/multer')).profileUploadFileFilter;
+  var imageUploadFileFilter = multer.profileUploadFileFilter;
 
   if (article) {
     var options = config.uploads.imageUpload;
     var upload = multer(options).single('newHeaderImage');
+    var headerMedia;
 
     // Filtering to upload only images
     upload.fileFilter = imageUploadFileFilter;
     upload(req, res, function(uploadError) {
+
+      console.log(Date.now(), req.body);
+      console.log(Date.now(), req.files);
+      console.log(Date.now(), req.file);
+
       if (uploadError) {
         return res.status(400).send({
           message: 'Error occurred while uploading image'
@@ -107,18 +131,14 @@ exports.changeHeaderImage = function (req, res) {
           message: 'Error - target image did not upload'
         });
       } else {
-        console.log(req.article);
-        console.log(req.file);
-
         cloudinary.uploader.upload(req.file.path, function(result) {
           console.log(result);
-          var headerMedia = new Media({
+          article.headerMedia = new Media({
             public_id: result.public_id,
             url: result.url,
-            secure_url: result.secure_url
+            secure_url: result.secure_url,
+            local_src: req.file.path
           });
-          article.headerMedia = headerMedia;
-
           article.save(function (err) {
             if (err) {
               return res.status(400).send({
@@ -128,6 +148,8 @@ exports.changeHeaderImage = function (req, res) {
               res.json(article);
             }
           });
+        }, {
+          folder: 'articles/' + article.slug
         });
       }
     });
@@ -139,41 +161,29 @@ exports.changeHeaderImage = function (req, res) {
 };
 
 /**
+ * Save media in the article
+ */
+exports.saveMedia = function (req, res) {
+  console.log(req.body);
+};
+
+/**
  * Like a article
  */
 exports.like = function (req, res) {
   var article = req.article;
-  var liked = false;
-
-  //console.log(req.article);
-
-  // to like an article, user must be included in the article's likes set
-  // first find if user already likes article
-
-  // but before that: does the article have any likes?
-  if (article.likes.length > 0) {
-    for (var i in article.likes) {
-      if (article.likes[i].user !== undefined && article.likes[i].user.toString() === req.user._id.toString()) {
-        liked = true;
-        break;
-      }
+  article.likes.push({ // add user's _id to the likes set...
+    user: req.body.user._id.toString()
+  });
+  article.save(function (err) { // ...and send the article
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.json(article);
     }
-  }
-
-  if (liked !== true) { // if user has not liked (or is not currently liking) article, then:
-    article.likes.push({ // add user's _id to the likes set...
-      user: req.body.user._id.toString()
-    });
-    article.save(function (err) { // ...and send the article
-      if (err) {
-        return res.status(400).send({
-          message: errorHandler.getErrorMessage(err)
-        });
-      } else {
-        res.json(article);
-      }
-    });
-  }
+  });
 };
 
 /**
@@ -181,58 +191,31 @@ exports.like = function (req, res) {
  */
 exports.unlike = function (req, res) {
   var article = req.article;
-  var unliked = true; // user currently not liking article
   var index = -1; // currently undefined index of user in the likes set
 
   // to unlike an article, user must be removed from article's likes set
   // first find if user already likes article
   for (var i in article.likes) {
     if (article.likes[i].user !== undefined && article.likes[i].user.toString() === req.user._id.toString()) {
-      unliked = false; // user likes article => unlike can begin
       index = i;
       break;
     }
   }
-
-  // at this point, user is still not liking article, so:
-  if (unliked === false) { // ...otherwise, unlike the article...
-    article.likes.splice(index); // ...by removing it from the likes set...
-    article.save(function (err) { // ...and save the article.
-      if (err) {
-        return res.status(400).send({
-          message: errorHandler.getErrorMessage(err)
-        });
-      } else {
-        res.json(article);
-      }
-    });
-  }
-};
-
-/**
- * Like status of an article
- */
-exports.liked = function(req, res) {
-  var article = req.article;
-  var liked = false; // assumption
-  // check for likes
-  if (article.likes.length > 0) {
-    for (var i in article.likes) {
-      //console.log(article.likes.user, req.user);
-      if (article.likes[i].user !== undefined && article.likes[i].user.toString() === req.user._id.toString()) {
-        liked = true; // user likes article
-        break;
-      }
+  article.likes.splice(index); // ...by removing it from the likes set...
+  article.save(function (err) { // ...and save the article.
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.json(article);
     }
-  }
-  res.json({
-    status: liked
   });
 };
 
 /*
-*Add a comment to a post
-*/
+ *Add a comment to a post
+ */
 exports.addComment = function(req, res){
   var article = req.article;
   article.comments.push(req.body);

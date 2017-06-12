@@ -17,12 +17,22 @@ var MediaSchema = new Schema({
     default: ''
   },
   url: {
-    //location of the file
+    //remote location of the file
     type: String,
     default: ''
   },
   secure_url: {
-		//location of the file;
+		// remote location of the file via HTTPS;
+    type: String,
+    default: ''
+  },
+  local_src: {
+    // local src file
+    type: String,
+    default: ''
+  },
+  caption: {
+    // caption / alt text for media file
     type: String,
     default: ''
   }
@@ -51,7 +61,7 @@ var ReplySchema = new Schema({
   },
   blocked: {
     type: Boolean,
-    default: false,
+    default: false
   },
   parent: {
     type: Schema.ObjectId
@@ -74,14 +84,14 @@ var CommentBlockSchema = new Schema({
   user: {
     type: Schema.ObjectId,
     ref: 'User'
-  },
+  }
 });
 
 /**
- * ArticleLike Schema
+ * Like Schema
  */
 
-var ArticleLikeSchema = new Schema({
+var LikeSchema = new Schema({
   created: {
     type: Date,
     default: Date.now
@@ -89,22 +99,7 @@ var ArticleLikeSchema = new Schema({
   user: {
     type: Schema.ObjectId,
     ref: 'User'
-  },
-});
-
-/**
- * CommentLike Schema
- */
-
-var CommentLikeSchema = new Schema({
-  created: {
-    type: Date,
-    default: Date.now
-  },
-  user: {
-    type: Schema.ObjectId,
-    ref: 'User'
-  },
+  }
 });
 
 /**
@@ -118,11 +113,11 @@ var CommentSchema = new Schema({
   },
   content: {
     type: String,
-    default: '',
+    default: ''
   },
   blocked: {
     type: Boolean,
-    default: false,
+    default: false
   },
   user: {
     type: Schema.ObjectId,
@@ -130,7 +125,7 @@ var CommentSchema = new Schema({
   },
   replies: [ReplySchema],
   blockers: [CommentBlockSchema],
-  likes: [CommentLikeSchema]
+  likes: [LikeSchema]
 });
 
 /**
@@ -147,12 +142,6 @@ var ArticleSchema = new Schema({
     default: '',
     trim: true,
     required: 'Title cannot be blank'
-  },
-  intro: {
-    type: String,
-    default: '',
-    trim: true,
-    required: 'Intro cannot be blank'
   },
   content: {
     type: String,
@@ -172,7 +161,7 @@ var ArticleSchema = new Schema({
   headerMedia: MediaSchema,
   media: [MediaSchema],
   comments: [CommentSchema],
-  likes: [ArticleLikeSchema],
+  likes: [LikeSchema],
   tags: [TagSchema]
 });
 
@@ -183,9 +172,9 @@ ArticleSchema.index({
   title: 'text'
 },{
   weights: {
-    title: 8,
+    content: 2,
     intro: 4,
-    content: 2
+    title: 8
   }
 });
 

@@ -29,6 +29,10 @@ angular.module('articles').config(['$stateProvider',
         url: '/authors/:author',
         templateUrl: 'modules/articles/client/views/articles-author.client.view.html'
       })
+      .state('articles.search', {
+        url: '/search/:searchText',
+        templateUrl: 'modules/articles/client/views/search-articles.client.view.html'
+      })
       .state('articles.tags', {
         url: '/tags',
         templateUrl: 'modules/articles/client/views/list-tags.client.view.html'
@@ -44,6 +48,13 @@ angular.module('articles').config(['$stateProvider',
       .state('articles.edit', {
         url: '/:articleId/edit',
         templateUrl: 'modules/articles/client/views/edit-article.client.view.html',
+        data: {
+          roles: ['mentor', 'admin']
+        }
+      })
+      .state('articles.header', {
+        url: '/:articleId/header-image',
+        templateUrl: 'modules/articles/client/views/change-article-header-image.client.view.html',
         data: {
           roles: ['mentor', 'admin']
         }

@@ -1,9 +1,15 @@
-<section ng-controller="ArticlesController" ng-init="findByTag()">
+<section ng-controller="ArticlesController" ng-init="textSearch()">
   <div class="page-header">
-    <h1>Articles tagged with <em ng-bind="tag"></em></h1>
+    <h1>Articles matching <em ng-bind="searchText"></em></h1>
   </div>
   <div class="list-group">
     <a ng-repeat="article in articles" ui-sref="articles.view({articleId: article._id})" class="list-group-item">
+      <p>
+        <span><i class="glyphicon glyphicon-tags"></i></span>
+        <span ng-repeat="tag in article.tags">
+          <span>&nbsp;</span><span ng-bind="tag.text"></span>
+        </span>
+      </p>
       <small class="list-group-item-text">
         Posted on
         <span ng-bind="article.created | date:'mediumDate'"></span>
@@ -14,7 +20,7 @@
       <p class="list-group-item-text" ng-bind="article.intro"></p>
     </a>
   </div>
-  <div class="alert alert-warning text-center" ng-if="articles.$resolved && !articles.length">
-    No articles yet, why don't you <a ui-sref="articles.create">create one</a>?
+  <div class="alert alert-info text-center" ng-if="articles.length < 1">
+    There are no articles matching your search text, <em ng-bind="searchText"></em>.
   </div>
 </section>
